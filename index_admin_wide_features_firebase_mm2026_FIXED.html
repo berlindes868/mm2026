@@ -1,0 +1,1596 @@
+<!DOCTYPE html>
+
+<html lang="vi">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+    <title>MAKE MONEY 2026</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+
+
+
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+
+
+
+    <style>
+/* --- MODERN GREEN NEON (LIKE SAMPLE) --- */
+:root{
+  --bg0:#03050a;
+  --bg1:#041017;
+  --card: rgba(4, 10, 16, 0.68);
+  --card2: rgba(6, 16, 24, 0.55);
+  --stroke: rgba(16, 255, 177, 0.22);
+  --stroke2: rgba(16, 255, 177, 0.14);
+  --text:#e5e7eb;
+  --muted:#9aa7b8;
+  --neon:#10ffb1;   /* primary green */
+  --neon2:#35ffcf;  /* highlight */
+  --good:#22c55e;
+  --bad:#ef4444;
+  --warn:#f59e0b;
+  --shadow: 0 22px 70px rgba(0,0,0,.62);
+  --r:26px;
+}
+
+body{
+  font-family:'Be Vietnam Pro', system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+  color: var(--text);
+  min-height: 100vh;
+  overflow: hidden;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  user-select:none;
+  background:
+    radial-gradient(1100px 720px at 50% 10%, rgba(16,255,177,.18), transparent 60%),
+    radial-gradient(900px 620px at 12% 32%, rgba(16,255,177,.14), transparent 60%),
+    radial-gradient(900px 620px at 88% 32%, rgba(16,255,177,.10), transparent 62%),
+    linear-gradient(180deg, var(--bg0), var(--bg1));
+  position: relative;
+}
+
+/* animated “matrix” overlay */
+body::before{
+  content:"";
+  position: fixed;
+  inset: 0;
+  pointer-events:none;
+  background:
+    repeating-linear-gradient(90deg, rgba(16,255,177,.08) 0 1px, transparent 1px 64px),
+    repeating-linear-gradient(0deg, rgba(16,255,177,.06) 0 1px, transparent 1px 64px);
+  opacity: .12;
+  transform: translateZ(0);
+}
+body::after{
+  content:"";
+  position: fixed;
+  inset:-20%;
+  pointer-events:none;
+  background:
+    radial-gradient(circle at 20% 30%, rgba(16,255,177,.22), transparent 45%),
+    radial-gradient(circle at 75% 30%, rgba(16,255,177,.16), transparent 50%),
+    radial-gradient(circle at 50% 80%, rgba(16,255,177,.10), transparent 55%),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='260' height='260'%3E%3Cg fill='none' stroke='%2310ffb1' stroke-opacity='.25'%3E%3Cpath d='M0 130h260'/%3E%3Cpath d='M130 0v260'/%3E%3Cpath d='M0 0l260 260'/%3E%3Cpath d='M260 0L0 260'/%3E%3C/g%3E%3C/svg%3E");
+  background-size: auto, auto, auto, 260px 260px;
+  mix-blend-mode: screen;
+  opacity: .10;
+  animation: floatGlow 9s ease-in-out infinite;
+  transform: translateZ(0);
+}
+
+@keyframes floatGlow{
+  0%,100%{ transform: translate3d(0,0,0) scale(1); filter: blur(0px); }
+  50%{ transform: translate3d(0,-10px,0) scale(1.02); filter: blur(0.6px); }
+}
+
+/* Allow content scroll inside cards on small phones */
+@media (max-height: 720px){
+  body{ overflow:auto; align-items:flex-start; padding-top:16px; padding-bottom:16px; }
+  .glass-card{ max-height: calc(100vh - 32px); overflow:auto; }
+}
+
+.font-tech{ font-family:'Be Vietnam Pro', system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; }
+
+/* GLASS / NEON CARD */
+.glass-card{
+  background: var(--card);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  border: 1px solid rgba(16,255,177,.18);
+  border-radius: var(--r);
+  box-shadow: var(--shadow);
+  position:relative;
+  overflow:hidden;
+}
+.glass-card::before{
+  content:"";
+  position:absolute;
+  inset:-2px;
+  background:
+    linear-gradient(140deg, rgba(16,255,177,.14), transparent 45%),
+    linear-gradient(320deg, rgba(16,255,177,.08), transparent 50%);
+  filter: blur(16px);
+  opacity:.92;
+  pointer-events:none;
+}
+.glass-card::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  background: linear-gradient(to right, transparent, rgba(16,255,177,.18), transparent);
+  transform: translateX(-70%);
+  transition: 0.8s ease;
+  pointer-events:none;
+  opacity:0;
+}
+.glass-card:hover::after{ transform: translateX(70%); opacity:.65; }
+
+/* logo chip */
+.neon-logo{
+  background: radial-gradient(circle at 30% 30%, rgba(16,255,177,.22), rgba(0,0,0,.20) 55%);
+  border: 1px solid rgba(16,255,177,.26);
+  box-shadow:
+    0 0 0 6px rgba(16,255,177,.06),
+    0 18px 48px rgba(0,0,0,.45),
+    0 0 32px rgba(16,255,177,.22);
+  color: rgba(229,231,235,.96);
+}
+
+/* Text glow (green) */
+.text-glow-gold{ color: var(--neon); text-shadow: 0 0 18px rgba(16,255,177,.55); }
+.text-glow-blue{ color: var(--neon); text-shadow: 0 0 18px rgba(16,255,177,.55); }
+.text-glow-red { color: #fb7185; text-shadow: 0 0 18px rgba(251,113,133,.55); }
+
+/* Buttons: capsule + triple glow */
+.btn-pro{
+  border:none;
+  outline:none;
+  font-family:'Orbitron', sans-serif;
+  font-weight:900;
+  text-transform:uppercase;
+  cursor:pointer;
+  transition: transform .12s ease, filter .18s ease, box-shadow .18s ease;
+  position:relative;
+  overflow:hidden;
+  border-radius: 999px;
+  letter-spacing: .06em;
+}
+.btn-pro::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  background: linear-gradient(120deg, transparent, rgba(255,255,255,.18), transparent);
+  transform: translateX(-80%);
+  transition: .55s ease;
+  opacity:.85;
+}
+.btn-pro:hover::after{ transform: translateX(80%); }
+.btn-pro:active{ transform: scale(.97); filter: brightness(1.05); }
+
+.btn-gold{
+  background: linear-gradient(180deg, rgba(16,255,177,.95), rgba(10,120,92,.92));
+  color: #04120e;
+  border: 1px solid rgba(16,255,177,.34);
+  box-shadow:
+    0 0 0 6px rgba(16,255,177,.08),
+    0 18px 50px rgba(16,255,177,.14),
+    0 0 30px rgba(16,255,177,.24);
+}
+.btn-green{
+  background: linear-gradient(180deg, rgba(16,255,177,.92), rgba(34,197,94,.88));
+  color:#04120e;
+  border: 1px solid rgba(16,255,177,.28);
+  box-shadow: 0 0 0 6px rgba(16,255,177,.07), 0 16px 44px rgba(34,197,94,.12);
+}
+.btn-red{
+  background: linear-gradient(180deg, rgba(251,113,133,.92), rgba(239,68,68,.92));
+  color:#17060a;
+  border: 1px solid rgba(239,68,68,.26);
+  box-shadow: 0 0 0 6px rgba(239,68,68,.07), 0 16px 44px rgba(239,68,68,.12);
+}
+.btn-gray{
+  background: linear-gradient(180deg, rgba(100,116,139,.55), rgba(15,23,42,.65));
+  color:#e5e7eb;
+  border: 1px solid rgba(148,163,184,.18);
+}
+
+/* Inputs: capsule */
+.tech-input{
+  background: rgba(0,0,0,0.32);
+  border: 1px solid rgba(16,255,177,.18);
+  color: #e5e7eb;
+  padding: 14px 16px;
+  border-radius: 999px;
+  font-family:'Be Vietnam Pro', system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+  font-weight: 700;
+  font-size: 16px;
+  width: 100%;
+  outline: none;
+  transition: box-shadow .18s ease, border-color .18s ease, background .18s ease, transform .12s ease;
+}
+.tech-input:focus{
+  border-color: rgba(16,255,177,.62);
+  background: rgba(0,0,0,0.55);
+  box-shadow: 0 0 0 4px rgba(16,255,177,.12), 0 0 28px rgba(16,255,177,.10);
+  transform: translateY(-1px);
+}
+.tech-label{
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+  display:block;
+  letter-spacing: 1.4px;
+}
+select.tech-input option{ background:#071017; color:#e5e7eb; padding:8px; }
+
+/* Roadmap beads */
+.roadmap-container{
+  display:flex;
+  gap:8px;
+  overflow-x:auto;
+  padding: 12px;
+  scroll-behavior:smooth;
+  background: rgba(0,0,0,.20);
+  border-radius: 18px;
+  border: 1px solid rgba(16,255,177,.14);
+}
+.road-bead{
+  width: 30px;
+  height: 30px;
+  border-radius: 999px;
+  flex-shrink:0;
+  font-size: 12px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  box-shadow: 0 10px 22px rgba(0,0,0,.40);
+  border: 1px solid rgba(255,255,255,.12);
+}
+.bead-b{ background: radial-gradient(circle at 30% 30%, #fb7185, #be123c); color:#fff; }
+.bead-p{ background: radial-gradient(circle at 30% 30%, #34d399, #10b981); color:#04120e; font-weight: 900; }
+.bead-t{ background: radial-gradient(circle at 30% 30%, #fbbf24, #b45309); color:#0b0f12; font-weight: 900; }
+
+/* Prediction circle */
+.result-box{
+  width: 220px;
+  height: 220px;
+  border-radius: 999px;
+  border: 1px solid rgba(16,255,177,.22);
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  background:
+    radial-gradient(circle at 30% 30%, rgba(16,255,177,.18), transparent 55%),
+    radial-gradient(circle at 70% 70%, rgba(16,255,177,.10), transparent 55%),
+    rgba(0,0,0,.18);
+  margin: 0 auto;
+  box-shadow: 0 0 70px rgba(16,255,177,.10), inset 0 0 44px rgba(16,255,177,.08);
+  transition: .35s ease;
+}
+
+/* Admin table */
+.admin-table{ width:100%; border-collapse:collapse; font-size: 13px; }
+.admin-table th{
+  background: rgba(16,255,177,.08);
+  color: rgba(167,255,230,.95);
+  padding: 12px;
+  text-align:left;
+  border-bottom: 1px solid rgba(16,255,177,.18);
+}
+.admin-table td{ border-bottom: 1px solid rgba(255,255,255,.06); padding: 10px; }
+.user-checkbox{ width: 18px; height: 18px; cursor:pointer; accent-color: #10ffb1; }
+.badge-new{ font-size: 9px; padding: 2px 8px; border-radius: 999px; background: rgba(148,163,184,.16); color:#e2e8f0; margin-left: 6px; letter-spacing:.6px; }
+
+/* Status box */
+.status-box{
+  background: rgba(0,0,0,.32);
+  border-radius: 18px;
+  padding: 15px;
+  text-align:center;
+  font-family:'Orbitron', sans-serif;
+  font-weight: 800;
+  border: 1px solid rgba(16,255,177,.14);
+  transition: .25s ease;
+}
+.status-win{
+  border-color: rgba(34,197,94,.30);
+  background: linear-gradient(90deg, rgba(34,197,94,.10), rgba(34,197,94,.22));
+  color: #4ade80;
+  text-shadow: 0 0 12px rgba(74,222,128,.45);
+}
+.status-loss{
+  border-color: rgba(239,68,68,.32);
+  background: linear-gradient(90deg, rgba(239,68,68,.10), rgba(239,68,68,.22));
+  color:#fb7185;
+  text-shadow: 0 0 12px rgba(251,113,133,.45);
+}
+.status-waiting{
+  border-color: rgba(16,255,177,.20);
+  background: linear-gradient(90deg, rgba(16,255,177,.06), rgba(16,255,177,.10));
+  color:#e5e7eb;
+}
+.status-tie{
+  border-color: rgba(251,191,36,.24);
+  background: linear-gradient(90deg, rgba(251,191,36,.08), rgba(180,83,9,.10));
+  color:#fef3c7;
+}
+
+/* History pills */
+.history-pill{ font-size: 10px; padding: 3px 10px; border-radius: 999px; margin-right: 4px; font-weight: 900; display:inline-block; margin-bottom: 4px; }
+.h-win { background: #22c55e; color:#04100a; }
+.h-loss{ background: #ef4444; color:#fff; }
+.h-tie { background: #fbbf24; color:#111827; }
+
+/* Anim */
+@keyframes pulse-neon{
+  0%{ box-shadow: 0 0 0 0 rgba(16,255,177,.22); }
+  70%{ box-shadow: 0 0 0 14px rgba(16,255,177,0); }
+  100%{ box-shadow: 0 0 0 0 rgba(16,255,177,0); }
+}
+.animate-pulse-gold{ animation: pulse-neon 2.2s infinite; }
+
+/* --- INPUT ICON WRAPPERS --- */
+.input-wrap{ position: relative; }
+.input-icon-left{
+  position:absolute; left:14px; top:50%; transform: translateY(-50%);
+  color: rgba(16,255,177,.75);
+  filter: drop-shadow(0 0 10px rgba(16,255,177,.35));
+  font-size: 16px;
+  pointer-events:none;
+}
+.input-icon-right{
+  position:absolute; right:14px; top:50%; transform: translateY(-50%);
+  color: rgba(16,255,177,.85);
+  filter: drop-shadow(0 0 10px rgba(16,255,177,.35));
+  font-size: 16px;
+  cursor:pointer;
+}
+.tech-input.has-left{ padding-left: 44px; }
+.tech-input.has-right{ padding-right: 44px; }
+
+/* --- 3D NEON BUTTON (THICK + GLOW) --- */
+.btn-3d{
+  position:relative;
+  border-radius:999px;
+  transform: translateZ(0);
+}
+.btn-3d::before{
+  content:"";
+  position:absolute; inset:3px;
+  border-radius:999px;
+  background: linear-gradient(180deg, rgba(0,0,0,.10), rgba(0,0,0,.45));
+  box-shadow: inset 0 0 0 1px rgba(16,255,177,.22);
+  pointer-events:none;
+}
+.btn-3d{
+  box-shadow:
+    0 0 0 7px rgba(16,255,177,.10),
+    0 18px 55px rgba(16,255,177,.18),
+    0 24px 70px rgba(0,0,0,.55);
+}
+.btn-3d:active{ transform: scale(.975); }
+
+/* --- FONT FIXES --- */
+.login-btn-fix{
+  font-family: 'Be Vietnam Pro', system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif !important;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+/* --- REGISTER BLINK EFFECT --- */
+.register-blink{
+  display: inline-block;
+  font-size: 14px;
+  font-weight: 700;
+  color: #10ffb1;
+  text-shadow: 0 0 12px rgba(16,255,177,.6);
+  animation: blinkGlow 1.4s ease-in-out infinite;
+}
+
+@keyframes blinkGlow{
+  0%{
+    opacity: .4;
+    text-shadow: 0 0 6px rgba(16,255,177,.4);
+  }
+  50%{
+    opacity: 1;
+    text-shadow: 0 0 18px rgba(16,255,177,.9);
+  }
+  100%{
+    opacity: .4;
+    text-shadow: 0 0 6px rgba(16,255,177,.4);
+  }
+}
+
+/* --- SMOOTH SCREEN TRANSITIONS --- */
+.screen{
+  opacity: 0;
+  transform: translateY(10px) scale(.985);
+  transition: opacity .28s ease, transform .28s ease;
+  will-change: opacity, transform;
+}
+.screen.is-active{
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+/* --- RIPPLE ON TAP --- */
+.btn-pro{ position: relative; }
+.btn-pro .ripple{
+  position:absolute;
+  border-radius:999px;
+  transform: scale(0);
+  animation: ripple 650ms ease-out;
+  background: rgba(255,255,255,.25);
+  pointer-events:none;
+  mix-blend-mode: overlay;
+}
+@keyframes ripple{
+  to{
+    transform: scale(2.4);
+    opacity: 0;
+  }
+}
+
+/* --- MOBILE POLISH (SMALL PHONES) --- */
+@media (max-width: 380px){
+  .glass-card{ border-radius: 22px; }
+  #login-screen, #register-screen{ padding: 24px !important; }
+  #setup-screen{ padding: 20px !important; }
+  .tech-input{ font-size: 15px; padding: 12px 14px; }
+  .tech-label{ font-size: 10px; letter-spacing: 1.1px; }
+  .register-blink{ font-size: 13px; }
+  .result-box{ width: 205px; height: 205px; }
+}
+
+/* Better typography across the app */
+h1,h2,h3{ letter-spacing: .01em; }
+
+/* --- CUSTOM DROPDOWN WITH LOGOS (HALL) --- */
+.dd{
+  position: relative;
+  width: 100%;
+}
+.dd-btn{
+  width: 100%;
+  display:flex;
+  align-items:center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 16px;
+  border-radius: 999px;
+  background: rgba(0,0,0,0.32);
+  border: 1px solid rgba(16,255,177,.22);
+  color: #e5e7eb;
+  box-shadow: 0 0 0 4px rgba(16,255,177,.06);
+  transition: .18s ease;
+}
+.dd-btn:focus{
+  outline: none;
+  border-color: rgba(16,255,177,.62);
+  box-shadow: 0 0 0 4px rgba(16,255,177,.12), 0 0 28px rgba(16,255,177,.10);
+}
+.dd-left{
+  display:flex;
+  align-items:center;
+  gap: 10px;
+  min-width: 0;
+}
+.dd-logo{
+  width: 26px;
+  height: 26px;
+  border-radius: 999px;
+  flex: 0 0 auto;
+  box-shadow: 0 0 14px rgba(16,255,177,.22);
+}
+.dd-text{
+  font-weight: 800;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.dd-caret{
+  color: rgba(16,255,177,.85);
+  filter: drop-shadow(0 0 10px rgba(16,255,177,.35));
+  flex: 0 0 auto;
+}
+
+/* menu */
+.dd-menu{
+  position:absolute;
+  left:0; right:0;
+  top: calc(100% + 10px);
+  background: rgba(2, 10, 12, 0.92);
+  border: 1px solid rgba(16,255,177,.20);
+  border-radius: 18px;
+  box-shadow: 0 24px 70px rgba(0,0,0,.68), 0 0 40px rgba(16,255,177,.10);
+  overflow:hidden;
+  z-index: 50;
+  max-height: 320px;
+  overflow-y: auto;
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  display:none;
+}
+.dd.open .dd-menu{ display:block; }
+
+.dd-item{
+  display:flex;
+  align-items:center;
+  gap: 12px;
+  padding: 12px 14px;
+  cursor:pointer;
+  user-select:none;
+  transition: background .15s ease;
+  border-top: 1px solid rgba(255,255,255,.06);
+}
+.dd-item:first-child{ border-top:none; }
+.dd-item:hover{ background: rgba(16,255,177,.10); }
+.dd-item.active{ background: rgba(16,255,177,.14); }
+
+.dd-item .name{
+  font-weight: 800;
+  color: #e5e7eb;
+}
+
+/* hide native select but keep for logic */
+#hallSelect{
+  position:absolute !important;
+  opacity:0 !important;
+  pointer-events:none !important;
+  height:0 !important;
+  width:0 !important;
+}
+
+
+/* --- ADMIN WIDE + NO WRAP --- */
+#admin-screen .admin-table th,
+#admin-screen .admin-table td{
+  white-space: nowrap;
+}
+#admin-screen .admin-table{
+  min-width: 920px;
+}
+#admin-table-wrap{
+  overflow-x: auto;
+}
+
+</style>
+
+</head>
+
+<body class="p-4">
+
+
+
+    <audio id="sound-click" src="https://actions.google.com/sounds/v1/ui/click_on_tap.ogg"></audio>
+
+    <audio id="sound-win" src="https://actions.google.com/sounds/v1/cartoon/cartoon_boing.ogg"></audio>
+
+    <audio id="sound-loss" src="https://actions.google.com/sounds/v1/cartoon/clank_car_crash.ogg"></audio>
+
+
+
+    <div id="login-screen" class="glass-card w-full max-w-sm p-8 flex flex-col justify-center animate__animated animate__fadeIn screen is-active">
+
+        <div class="text-center mb-8 relative">
+    <div class="mx-auto mb-5 w-20 h-20 rounded-2xl neon-logo flex items-center justify-center">
+        <span class="font-tech font-black text-xl tracking-wider">MM</span>
+    </div>
+    <h1 class="text-4xl font-tech font-black text-transparent bg-clip-text bg-gradient-to-b from-emerald-200 to-emerald-400 drop-shadow-md">
+        MAKE MONEY 2026
+    </h1>
+    <p class="text-xs text-glow-gold uppercase tracking-[4px] mt-2 font-bold">Đăng nhập tài khoản</p>
+</div>
+
+        <div class="space-y-5">
+
+            <div>
+        <label class="tech-label">TÀI KHOẢN</label>
+        <div class="input-wrap">
+            <i class="fas fa-user input-icon-left"></i>
+            <input type="text" id="loginUser" class="tech-input has-left" placeholder="Nhập ID...">
+            
+        </div>
+    </div>
+
+            <div>
+        <label class="tech-label">MẬT KHẨU</label>
+        <div class="input-wrap">
+            <i class="fas fa-lock input-icon-left"></i>
+            <input type="password" id="loginPass" class="tech-input has-left has-right" placeholder="Nhập mật khẩu...">
+            <i class="fas fa-eye input-icon-right" onclick="togglePassword('loginPass', this)"></i>
+        </div>
+    </div>
+
+            <button onclick="playSound('click'); handleLogin()" class="btn-pro btn-gold btn-3d w-full py-4 text-xl mt-4 login-btn-fix">ĐĂNG NHẬP</button>
+
+            <div class="text-center mt-4">
+
+                <button onclick="playSound('click'); showScreen('register-screen')" class="text-xs text-gray-400 hover:text-emerald-300 underline uppercase tracking-widest transition"><span class="register-blink">Chưa có tài khoản? Đăng ký ngay</span></button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+
+    <div id="register-screen" class="hidden glass-card w-full max-w-sm p-8 flex flex-col justify-center animate__animated animate__fadeIn screen">
+
+        <div class="text-center mb-6">
+
+            <h2 class="text-2xl font-tech font-bold text-white mb-2">ĐĂNG KÝ MỚI</h2>
+
+            <p class="text-[10px] text-gray-400">Tạo tài khoản để tham gia hệ thống</p>
+
+        </div>
+
+        <div class="space-y-4">
+
+            <div>
+        <label class="tech-label">TÊN TÀI KHOẢN</label>
+        <div class="input-wrap">
+            <i class="fas fa-id-badge input-icon-left"></i>
+            <input type="text" id="regUser" class="tech-input has-left" placeholder="Viết liền không dấu...">
+            
+        </div>
+    </div>
+
+            <div>
+        <label class="tech-label">MẬT KHẨU</label>
+        <div class="input-wrap">
+            <i class="fas fa-lock input-icon-left"></i>
+            <input type="password" id="regPass" class="tech-input has-left has-right" placeholder="Tự tạo mật khẩu...">
+            <i class="fas fa-eye input-icon-right" onclick="togglePassword('regPass', this)"></i>
+        </div>
+    </div>
+
+            <div>
+        <label class="tech-label">XÁC NHẬN</label>
+        <div class="input-wrap">
+            <i class="fas fa-shield-alt input-icon-left"></i>
+            <input type="password" id="regPassConfirm" class="tech-input has-left has-right" placeholder="Nhập lại mật khẩu...">
+            <i class="fas fa-eye input-icon-right" onclick="togglePassword('regPassConfirm', this)"></i>
+        </div>
+    </div>
+
+            <button onclick="playSound('click'); handleRegister()" class="btn-pro btn-green btn-3d w-full py-3 text-lg mt-2">ĐĂNG KÝ NGAY</button>
+
+            <button onclick="playSound('click'); showScreen('login-screen')" class="w-full py-2 text-xs text-gray-500 hover:text-white uppercase font-bold mt-2">QUAY LẠI</button>
+
+        </div>
+
+    </div>
+
+
+
+    <div id="setup-screen" class="hidden glass-card w-full max-w-md p-6 flex flex-col justify-center animate__animated animate__fadeIn screen">
+
+        <div class="flex justify-between items-center mb-6 border-b border-white/10 pb-4">
+
+            <div class="flex items-center gap-3">
+
+                <div class="w-10 h-10 rounded-lg bg-gray-800 border border-emerald-400/35 flex items-center justify-center"><i class="fas fa-user-astronaut text-emerald-300 text-lg"></i></div>
+
+                <div><p class="text-[10px] text-gray-400 font-bold">THÀNH VIÊN</p><p id="welcomeUser" class="font-bold text-white text-lg font-tech">...</p></div>
+
+            </div>
+
+            <div class="text-right bg-black/40 px-4 py-2 rounded-lg border border-green-500/30">
+
+                <p class="text-[9px] text-gray-400 font-bold">LƯỢT SOI</p><p id="userCredits" class="font-mono font-bold text-green-400 text-xl text-glow-blue">...</p>
+
+            </div>
+
+        </div>
+
+        <div class="space-y-4">
+
+            <div>
+  <label class="tech-label">CHỌN SẢNH (SERVER)</label>
+
+  <!-- Native select kept (hidden) for existing logic -->
+  <select id="hallSelect"></select>
+
+  <!-- Custom dropdown with logos -->
+  <div id="hallDropdown" class="dd">
+    <button type="button" id="hallDdBtn" class="dd-btn">
+      <div class="dd-left">
+        <img id="hallDdLogo" class="dd-logo" alt="">
+        <div id="hallDdText" class="dd-text">Chọn sảnh...</div>
+      </div>
+      <i class="fas fa-chevron-down dd-caret"></i>
+    </button>
+    <div id="hallDdMenu" class="dd-menu"></div>
+  </div>
+</div>
+
+            <div>
+        <label class="tech-label">TÊN LEADER CHIA BÀI</label>
+        <div class="input-wrap">
+            <i class="fas fa-user-astronaut input-icon-left"></i>
+            <input type="text" id="tableName" placeholder="VD: Leader Anna..." class="tech-input has-left">
+            
+        </div>
+    </div>
+
+            <div>
+        <label class="tech-label">VỐN CƯỢC (VNĐ)</label>
+        <div class="input-wrap">
+            <i class="fas fa-wallet input-icon-left"></i>
+            <input type="text" id="moneyInput" placeholder="Ví dụ: 5.000.000" class="tech-input has-left text-green-300 font-mono text-lg" oninput="formatCurrency(this)">
+            
+        </div>
+    </div>
+
+            <div>
+        <label class="tech-label">CHỌN DẠNG CẦU PHỔ BIẾN</label>
+        <div class="input-wrap">
+            <i class="fas fa-project-diagram input-icon-left"></i>
+            <select id="strategySelect" class="tech-input has-left cursor-pointer text-sm font-mono h-14"></select>
+            
+        </div>
+    </div>
+
+            <button onclick="playSound('click'); startGame()" class="btn-pro btn-gold btn-3d w-full py-4 text-xl mt-4 flex items-center justify-center gap-3"><i class="fas fa-play"></i> KÍCH HOẠT TOOL</button>
+
+        </div>
+
+    </div>
+
+
+
+    <div id="admin-screen" class="hidden glass-card w-full max-w-lg md:max-w-4xl lg:max-w-6xl p-6 h-[90vh] flex flex-col animate__animated animate__fadeIn screen">
+
+        <div class="flex justify-between items-center mb-4 border-b border-white/10 pb-2">
+
+            <h2 class="text-xl font-tech font-bold text-glow-gold">QUẢN TRỊ VIÊN</h2>
+
+            <div class="flex gap-2">
+
+                <button onclick="deleteSelectedUsers()" class="btn-pro btn-red btn-3d px-3 py-1 text-xs">XÓA MỤC CHỌN</button>
+
+                <button onclick="logout()" class="btn-pro btn-red btn-3d px-3 py-1 text-xs">THOÁT</button>
+
+            </div>
+
+        </div>
+
+
+        <div id="adminStats" class="bg-black/40 p-3 rounded-xl mb-4 border border-white/10">
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                <div class="px-3 py-2 rounded-lg border border-emerald-400/20 bg-emerald-500/5">
+                    <div class="text-[9px] text-gray-400 font-bold uppercase">Tổng user</div>
+                    <div id="statTotal" class="text-emerald-200 font-mono font-bold text-lg">0</div>
+                </div>
+                <div class="px-3 py-2 rounded-lg border border-yellow-400/20 bg-yellow-500/5">
+                    <div class="text-[9px] text-gray-400 font-bold uppercase">Chờ duyệt</div>
+                    <div id="statPending" class="text-yellow-200 font-mono font-bold text-lg">0</div>
+                </div>
+                <div class="px-3 py-2 rounded-lg border border-red-400/20 bg-red-500/5">
+                    <div class="text-[9px] text-gray-400 font-bold uppercase">Bị khoá</div>
+                    <div id="statBlocked" class="text-red-200 font-mono font-bold text-lg">0</div>
+                </div>
+                <div class="px-3 py-2 rounded-lg border border-emerald-400/20 bg-emerald-500/5">
+                    <div class="text-[9px] text-gray-400 font-bold uppercase">Tổng lượt</div>
+                    <div id="statCredits" class="text-emerald-200 font-mono font-bold text-lg">0</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-black/40 p-4 rounded-xl mb-4 border border-white/10">
+
+            <h3 class="text-xs font-bold text-gray-400 mb-2">THÊM NHANH USER</h3>
+
+            <div class="flex gap-2"><input id="newUsername" type="text" placeholder="Tên TK" class="tech-input py-2 text-xs"><input id="newPassword" type="text" placeholder="Mật khẩu" class="tech-input py-2 text-xs"><button onclick="addUser()" class="btn-pro btn-green btn-3d px-4 text-xs font-bold">THÊM</button></div>
+
+        </div>
+
+        <div class="bg-black/40 p-3 rounded-lg mb-3 border border-white/10 flex justify-between items-center">
+
+            <div class="flex items-center gap-2 flex-1">
+
+                <i class="fas fa-search text-gray-400"></i>
+
+                <input id="searchUser" type="text" placeholder="Tìm kiếm nhanh..." class="bg-transparent border-none text-white text-xs w-full outline-none font-bold" oninput="renderAdminDirect()">
+
+            </div>
+
+            <div class="flex items-center gap-2 ml-3">
+                <span class="text-[10px] text-gray-400 font-bold uppercase">Hiển thị</span>
+                <select id="perPageSelect" onchange="setAdminPerPage(this.value)" class="bg-black/40 border border-emerald-400/25 text-emerald-200 text-[10px] font-bold px-2 py-1 rounded-lg outline-none">
+                    <option value="10">10</option>
+                    <option value="20" selected>20</option>
+                    <option value="50">50</option>
+                    <option value="100">100</option>
+                </select>
+                <span id="pageInfo" class="text-[10px] text-gray-400 font-bold">Trang 1/1</span>
+            </div>
+
+            <button onclick="playSound('click'); forceRefreshAdmin()" class="text-[10px] text-emerald-300 border border-emerald-400/35 px-2 py-1 rounded hover:bg-yellow-500/20"><i class="fas fa-sync-alt"></i></button>
+
+        </div>
+
+        <div id="admin-table-wrap" class="flex-1 overflow-y-auto custom-scrollbar">
+
+            <table class="w-full admin-table">
+
+                <thead><tr><th class="w-8 text-center"><input type="checkbox" id="selectAll" onclick="toggleSelectAll()" class="user-checkbox"></th><th>TÀI KHOẢN</th><th>LƯỢT</th><th>LÃI/LỖ</th><th>THAO TÁC</th></tr></thead>
+
+                <tbody id="userListBody"></tbody>
+
+            </table>
+
+            <div class="mt-3 flex items-center justify-between gap-2">
+                <button onclick="goAdminPage('prev')" class="btn-pro btn-gray btn-3d px-4 py-2 text-[10px] font-bold uppercase tracking-widest">Trang trước</button>
+                <div class="text-[10px] text-gray-400 font-bold uppercase tracking-widest">
+                    <span id="pageInfoBottom">Trang 1/1</span>
+                </div>
+                <button onclick="goAdminPage('next')" class="btn-pro btn-gray btn-3d px-4 py-2 text-[10px] font-bold uppercase tracking-widest">Trang sau</button>
+            </div>
+
+
+        </div>
+
+    </div>
+
+
+
+    <div id="game-screen" class="hidden w-full max-w-md h-[95vh] glass-card flex flex-col justify-between overflow-hidden animate__animated animate__zoomIn screen">
+
+        <div class="p-4 bg-black/20 border-b border-white/5 flex justify-between items-start backdrop-blur-md">
+
+            <div class="w-2/3">
+
+                <div class="flex items-center gap-2 mb-2">
+
+                    <span id="displayHall" class="bg-gradient-to-r from-emerald-500 to-emerald-700 text-white text-[10px] font-bold px-2 py-0.5 rounded shadow">SE</span>
+
+                    <h2 id="displayTableName" class="text-lg font-tech font-bold text-white text-glow-blue uppercase truncate">...</h2>
+
+                </div>
+
+                <div id="liveRoadmap" class="roadmap-container"></div>
+
+            </div>
+
+            <div class="text-right w-1/3">
+
+                <p class="text-[9px] text-gray-400 font-bold mb-1">LƯỢT CÒN: <span id="gameScreenCredits" class="text-emerald-300 font-mono text-sm">0</span></p>
+
+                <p class="text-[9px] text-gray-400 font-bold">VỐN</p><p id="displayCapital" class="text-sm font-mono text-white font-bold">0</p>
+
+                <div class="mt-1"><p id="displayProfit" class="font-mono text-xs font-bold text-gray-400">0</p></div>
+
+            </div>
+
+        </div>
+
+
+
+        <div class="flex-1 flex flex-col items-center justify-center relative p-4">
+
+            <div id="betSuggestion" class="absolute top-2 w-full text-center opacity-0 transition-all duration-500 -translate-y-2 z-10">
+
+                <div class="inline-block px-6 py-2 bg-blue-900/80 rounded-full border border-blue-400/50 shadow-[0_0_20px_rgba(59,130,246,0.5)] backdrop-blur-md">
+
+                    <span class="text-[9px] text-blue-200 font-bold block mb-1 uppercase tracking-widest">GỢI Ý VÀO TIỀN</span>
+
+                    <span id="suggestAmount" class="text-2xl font-bold text-white font-mono text-glow-blue">0</span>
+
+                </div>
+
+            </div>
+
+
+
+            <div id="predictionBox" class="result-box mt-8">
+
+                <p class="text-[9px] text-gray-400 font-bold uppercase mb-2 tracking-[3px]">AI PREDICTION</p>
+
+                <div id="loadingAnim" class="hidden"><div class="w-16 h-16 border-4 border-yellow-500 border-t-transparent rounded-full animate-spin"></div></div>
+
+                <div id="predictionText" class="text-6xl font-tech font-black text-gray-600 transition-all duration-300">--</div>
+
+                <div id="winRate" class="mt-4 px-3 py-1 rounded bg-black/40 border border-emerald-400/30 opacity-0"><span class="font-mono font-bold text-emerald-300 text-sm">...%</span></div>
+
+            </div>
+
+
+
+            <div id="lastResultBox" class="mt-6 w-full status-box status-waiting animate__animated">
+
+                SẴN SÀNG PHÂN TÍCH
+
+            </div>
+
+
+
+            <div class="w-full mt-2 overflow-hidden">
+
+                <p class="text-[9px] text-gray-500 font-bold uppercase mb-1 ml-1">LỊCH SỬ CẦU:</p>
+
+                <div id="historyList" class="flex flex-wrap gap-1"></div>
+
+            </div>
+
+
+
+            <div id="lossAlert" class="hidden absolute inset-0 z-50 bg-black/95 flex flex-col items-center justify-center p-6 text-center backdrop-blur-xl">
+
+                <i class="fas fa-exclamation-triangle text-6xl text-red-500 mb-6 animate-pulse"></i>
+
+                <h3 class="text-3xl font-tech font-bold text-white mb-2 text-glow-red">CẢNH BÁO GÃY!</h3>
+
+                <p class="text-gray-400 text-sm mb-8">AI phát hiện cầu biến động mạnh. Đã tự động ngắt để bảo toàn vốn.</p>
+
+                <div class="w-full mb-6 p-4 bg-[#0f172a] rounded-xl border border-red-500/30">
+
+                    <p class="text-[10px] text-gray-500 uppercase text-left mb-2">CẬP NHẬT CÔNG THỨC MỚI:</p>
+
+                    <div id="brokenRoadmap" class="roadmap-container justify-center bg-transparent border-none"></div>
+
+                </div>
+
+                <button onclick="playSound('click'); autoContinueAfterLoss()" class="btn-pro btn-red btn-3d w-full py-4 text-lg">XÁC NHẬN & TIẾP TỤC</button>
+
+            </div>
+
+        </div>
+
+
+
+        <div class="p-5 bg-black/30 border-t border-white/5 backdrop-blur-xl">
+
+            <div class="grid grid-cols-3 gap-3 mb-3">
+
+                <button onclick="playSound('win'); inputResult('WIN')" class="btn-pro btn-green btn-3d py-4 group flex flex-col items-center justify-center"><div class="text-2xl mb-1 group-active:scale-125 transition">💰</div><div class="text-[10px] font-bold">THẮNG</div></button>
+
+                <button onclick="playSound('loss'); inputResult('LOSS')" class="btn-pro btn-red btn-3d py-4 group flex flex-col items-center justify-center"><div class="text-2xl mb-1 group-active:scale-125 transition">☠️</div><div class="text-[10px] font-bold">THUA</div></button>
+
+                <button onclick="playSound('click'); inputResult('TIE')" class="btn-pro btn-gray btn-3d py-4 group flex flex-col items-center justify-center"><div class="text-2xl mb-1 group-active:scale-125 transition">🤝</div><div class="text-[10px] font-bold">HÒA</div></button>
+
+            </div>
+
+            <button onclick="location.reload()" class="w-full py-2 text-[10px] text-gray-500 hover:text-white uppercase font-bold tracking-widest transition">THOÁT RA MENU</button>
+
+        </div>
+
+    </div>
+
+
+
+    <script>
+
+// --- UI ENHANCEMENTS (RIPPLE + MOBILE FEEL) ---
+function attachRipples(){
+    document.querySelectorAll('button.btn-pro').forEach(btn=>{
+        if(btn.dataset.rippleBound) return;
+        btn.dataset.rippleBound = "1";
+        btn.addEventListener('click', (e)=>{
+            const rect = btn.getBoundingClientRect();
+            const size = Math.max(rect.width, rect.height);
+            const x = e.clientX - rect.left - size/2;
+            const y = e.clientY - rect.top - size/2;
+
+            const ripple = document.createElement('span');
+            ripple.className = 'ripple';
+            ripple.style.width = ripple.style.height = size + 'px';
+            ripple.style.left = x + 'px';
+            ripple.style.top = y + 'px';
+
+            btn.appendChild(ripple);
+            setTimeout(()=> ripple.remove(), 700);
+        }, {passive:true});
+    });
+}
+
+// Re-bind ripples when switching screens
+document.addEventListener('DOMContentLoaded', attachRipples);
+
+
+        // --- 1. FIREBASE CONFIG (ĐIỀN API CỦA BẠN VÀO ĐÂY) ---
+
+                const firebaseConfig = {
+            apiKey: "AIzaSyBfvlVHEU-_gfQSRQla5F0rP4eG2LuW2-o",
+            authDomain: "mm2026-9e829.firebaseapp.com",
+            databaseURL: "https://mm2026-9e829-default-rtdb.firebaseio.com",
+            projectId: "mm2026-9e829",
+            storageBucket: "mm2026-9e829.firebasestorage.app",
+            messagingSenderId: "812371395024",
+            appId: "1:812371395024:web:f9c538c6e20efb4ebf79d5",
+            measurementId: "G-9VHCN7W9NH"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+
+        const dbRef = firebase.database().ref();
+
+
+
+        // --- GLOBAL VARS ---
+
+        const ADMIN_USER = 'admin'; const ADMIN_PASS = 'admin';
+
+        let currentUser = null; let currentUserKey = null; let realtimeData = {};
+
+        const halls = ["SE Trực Tuyến", "DG Trực Tuyến", "EVO Trực Tuyến", "SA Trực Tuyến", "WM Trực Tuyến", "ON Trực Tuyến", "BG Trực Tuyến", "PA Trực Tuyến", "MG Trực Tuyến", "PT Trực Tuyến", "TP Trực Tuyến", "DB Trực Tuyến", "MT Trực Tuyến", "IDN Trực Tuyến"];
+
+        let patterns = [];
+
+        for(let i=4; i<=12; i++) { patterns.push({ seq: "🔴".repeat(i), name: `Bệt Cái ${i} tay` }); patterns.push({ seq: "🔵".repeat(i), name: `Bệt Con ${i} tay` }); }
+
+        patterns.push({ seq: "🔴🔵🔴🔵", name: "Cầu 1-1" }); patterns.push({ seq: "🔵🔴🔵🔴", name: "Cầu 1-1" });
+
+        patterns.push({ seq: "🔴🔴🔵🔵", name: "Cầu 2-2" }); patterns.push({ seq: "🔵🔵🔴🔴", name: "Cầu 2-2" });
+
+        patterns.push({ seq: "🔴🔴🔴🔵🔵🔵", name: "Cầu 3-3" }); patterns.push({ seq: "🔵🔵🔵🔴🔴🔴", name: "Cầu 3-3" });
+
+
+
+        // --- UTILS ---
+
+function svgLogo(code){
+    // simple neon logo (no external images) - stable on all browsers
+    const svg = `
+      <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64">
+        <defs>
+          <radialGradient id="g" cx="30%" cy="30%">
+            <stop offset="0%" stop-color="#35ffcf" stop-opacity="0.95"/>
+            <stop offset="60%" stop-color="#10ffb1" stop-opacity="0.45"/>
+            <stop offset="100%" stop-color="#041017" stop-opacity="1"/>
+          </radialGradient>
+        </defs>
+        <circle cx="32" cy="32" r="30" fill="url(#g)" stroke="#10ffb1" stroke-opacity="0.65" stroke-width="2"/>
+        <text x="32" y="40" font-family="Be Vietnam Pro, Arial" font-size="20" text-anchor="middle" fill="#eafff7" font-weight="800">${code}</text>
+      </svg>`;
+    return "data:image/svg+xml;charset=utf-8," + encodeURIComponent(svg);
+}
+
+const HALL_LOGOS = {
+    "SE": svgLogo("SE"),
+    "DG": svgLogo("DG"),
+    "EVO": svgLogo("EVO"),
+    "SA": svgLogo("SA"),
+    "WM": svgLogo("WM"),
+    "ON": svgLogo("ON"),
+    "BG": svgLogo("BG"),
+    "PA": svgLogo("PA"),
+    "MG": svgLogo("MG"),
+    "PT": svgLogo("PT"),
+    "TP": svgLogo("TP"),
+    "DB": svgLogo("DB"),
+    "MT": svgLogo("MT"),
+    "IDN": svgLogo("IDN"),
+};
+
+function initHallDropdown(){
+    const dd = document.getElementById('hallDropdown');
+    const btn = document.getElementById('hallDdBtn');
+    const menu = document.getElementById('hallDdMenu');
+    const label = document.getElementById('hallDdText');
+    const logo = document.getElementById('hallDdLogo');
+    const select = document.getElementById('hallSelect');
+    if(!dd || !btn || !menu || !label || !logo || !select) return;
+
+    // Build items from select options
+    menu.innerHTML = '';
+    [...select.options].forEach((opt, idx)=>{
+        const full = opt.value || opt.textContent;
+        const code = (full.split(" ")[0] || "").trim();
+        const item = document.createElement('div');
+        item.className = 'dd-item' + (idx===select.selectedIndex ? ' active' : '');
+        item.innerHTML = `
+            <img class="dd-logo" alt="${code}" src="${HALL_LOGOS[code] || svgLogo(code || '?')}">
+            <div class="name">${full}</div>
+        `;
+        item.addEventListener('click', ()=>{
+            select.selectedIndex = idx;
+            // sync UI
+            [...menu.children].forEach(x=>x.classList.remove('active'));
+            item.classList.add('active');
+            label.textContent = full;
+            logo.src = HALL_LOGOS[code] || svgLogo(code || '?');
+            dd.classList.remove('open');
+        });
+        menu.appendChild(item);
+    });
+
+    // Set initial label
+    const current = select.options[select.selectedIndex];
+    const full = (current && (current.value || current.textContent)) || 'Chọn sảnh...';
+    const code = (full.split(" ")[0] || "").trim();
+    label.textContent = full;
+    logo.src = HALL_LOGOS[code] || svgLogo(code || '?');
+
+    // Toggle open/close
+    btn.addEventListener('click', ()=>{
+        dd.classList.toggle('open');
+    });
+
+    // Close on outside click
+    document.addEventListener('click', (e)=>{
+        if(!dd.contains(e.target)) dd.classList.remove('open');
+    }, {passive:true});
+}
+
+
+
+        function togglePassword(inputId, iconEl){
+    const el = document.getElementById(inputId);
+    if(!el) return;
+    const isPw = el.type === 'password';
+    el.type = isPw ? 'text' : 'password';
+    if(iconEl){
+        iconEl.classList.toggle('fa-eye');
+        iconEl.classList.toggle('fa-eye-slash');
+    }
+}
+
+function playSound(type) { document.getElementById('sound-'+type).play().catch(e=>{}); }
+
+        function formatCurrency(input) { input.value = new Intl.NumberFormat('vi-VN').format(input.value.replace(/\D/g, '')); }
+
+        function toMoney(n) { return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(n); }
+
+        function parseMoney(s) { return parseInt(s.replace(/\./g, '').replace(/\D/g, '')) || 0; }
+
+        function showScreen(id) {
+    const screens = document.querySelectorAll('.glass-card');
+    screens.forEach(e => {
+        e.classList.remove('is-active');
+        e.classList.add('hidden');
+        if (e.id === 'game-screen') e.classList.remove('flex');
+    });
+
+    const target = document.getElementById(id);
+    if (!target) return;
+
+    // reveal first, then animate in
+    target.classList.remove('hidden');
+    if (id === 'game-screen') target.classList.add('flex');
+
+    requestAnimationFrame(() => {
+        target.classList.add('is-active');
+            if (typeof attachRipples === 'function') attachRipples();
+    });
+}
+
+        function copyText(text) { navigator.clipboard.writeText(text).then(() => { alert("Đã sao chép: " + text); }); }
+
+
+
+        // --- AUTH ---
+
+        function handleLogin() {
+    const u = document.getElementById('loginUser').value.trim();
+    const p = document.getElementById('loginPass').value;
+
+    if (!u || !p) return alert("Vui lòng nhập tài khoản và mật khẩu!");
+
+    // (Fallback) Admin hard-code to avoid lockout (you can remove later)
+    if (u === "berlindes868" && p === "berlindes868") {
+        showScreen('admin-screen');
+        initAdminListener();
+        return;
+    }
+
+    // 1) CHECK ADMIN FIRST (from Firebase: /admins)
+    dbRef.child('admins').orderByChild('username').equalTo(u).once('value', snapAdmin => {
+        let isAdmin = false;
+
+        if (snapAdmin.exists()) {
+            snapAdmin.forEach(child => {
+                const a = child.val();
+                if (a && a.password === p) isAdmin = true;
+            });
+        }
+
+        if (isAdmin) {
+            showScreen('admin-screen');
+            initAdminListener();
+            return;
+        }
+
+        // 2) IF NOT ADMIN -> CHECK NORMAL USER (/users)
+        dbRef.child('users').orderByChild('username').equalTo(u).once('value', snapshot => {
+            if (snapshot.exists()) {
+                let userFound = null;
+
+                snapshot.forEach(child => {
+                    if (child.val().password === p) {
+                        userFound = child.val();
+                        currentUserKey = child.key;
+                    }
+                });
+
+                if (userFound) {
+                    if (userFound.blocked === true) return alert("Tài khoản đã bị khoá. Liên hệ Admin.");
+
+                    currentUser = userFound;
+                    showScreen('setup-screen');
+                    document.getElementById('welcomeUser').innerText = userFound.username;
+                    document.getElementById('userCredits').innerText = userFound.credits || 0;
+                    initSelects();
+                } else {
+                    alert("Sai mật khẩu!");
+                }
+            } else {
+                alert("Tài khoản không tồn tại!");
+            }
+        });
+    });
+}
+
+function handleRegister() {
+
+            const u = document.getElementById('regUser').value, p = document.getElementById('regPass').value, pc = document.getElementById('regPassConfirm').value;
+
+            if(!u || !p) return alert("Vui lòng điền đủ thông tin!"); if(p!==pc) return alert("Mật khẩu không khớp!");
+
+            dbRef.child('users').orderByChild('username').equalTo(u).once('value', s => {
+
+                if(s.exists()) alert("Tên đã tồn tại!"); else dbRef.child('users').push({username: u, password: p, credits: 0, profit: 0, blocked: false, createdAt: Date.now()}).then(()=>{ alert("Đăng ký thành công! Liên hệ Admin kích hoạt."); showScreen('login-screen'); });
+
+            });
+
+        }
+
+        function logout() { location.reload(); }
+
+
+
+        
+        // --- ADMIN UI STATE ---
+        let adminPage = 1;
+        let adminPerPage = 20;
+
+        function setAdminPerPage(v){
+            adminPerPage = parseInt(v,10) || 20;
+            adminPage = 1;
+            renderAdminDirect();
+        }
+
+        function goAdminPage(dir){
+            const total = window.__adminTotalPages || 1;
+            if(dir === 'prev') adminPage = Math.max(1, adminPage - 1);
+            if(dir === 'next') adminPage = Math.min(total, adminPage + 1);
+            renderAdminDirect();
+        }
+
+// --- ADMIN REALTIME ---
+
+        function initAdminListener() {
+
+            dbRef.child('users').on('value', snapshot => { realtimeData = snapshot.val() || {}; renderAdminDirect(); });
+
+        }
+
+        function forceRefreshAdmin() { dbRef.child('users').once('value', s => { realtimeData = s.val() || {}; renderAdminDirect(); alert("Đã làm mới!"); }); }
+
+        
+        function renderAdminDirect() {
+
+            const tb = document.getElementById('userListBody'); 
+            if(!tb) return; 
+            tb.innerHTML = '';
+
+            const keywordEl = document.getElementById('searchUser');
+            const keyword = (keywordEl ? keywordEl.value : '').toLowerCase();
+
+            let arr = Object.keys(realtimeData || {}).map(k => ({ key: k, ...(realtimeData[k] || {}) }));
+            // sort: credits>0 first
+            arr.sort((a,b) => { 
+                if((a.credits||0)>0 && (b.credits||0)<=0) return -1; 
+                if((a.credits||0)<=0 && (b.credits||0)>0) return 1; 
+                return (a.username||'').localeCompare(b.username||''); 
+            });
+
+            // filter
+            const filtered = arr.filter(u => (u.username||'').toLowerCase().includes(keyword));
+
+            // stats
+            const total = arr.length;
+            const blocked = arr.filter(u => u.blocked === true).length;
+            const pending = arr.filter(u => (u.credits||0) <= 0 && u.blocked !== true).length;
+            const creditsSum = arr.reduce((s,u)=> s + (u.credits||0), 0);
+
+            const elTotal = document.getElementById('statTotal');
+            const elPending = document.getElementById('statPending');
+            const elBlocked = document.getElementById('statBlocked');
+            const elCredits = document.getElementById('statCredits');
+            if(elTotal) elTotal.innerText = total;
+            if(elPending) elPending.innerText = pending;
+            if(elBlocked) elBlocked.innerText = blocked;
+            if(elCredits) elCredits.innerText = creditsSum;
+
+            // pagination
+            const per = adminPerPage || 20;
+            const totalPages = Math.max(1, Math.ceil(filtered.length / per));
+            window.__adminTotalPages = totalPages;
+            if(adminPage > totalPages) adminPage = totalPages;
+            const start = (adminPage - 1) * per;
+            const pageItems = filtered.slice(start, start + per);
+
+            const info = `Trang ${adminPage}/${totalPages} • ${filtered.length} kết quả`;
+            const pageInfo = document.getElementById('pageInfo');
+            const pageInfoBottom = document.getElementById('pageInfoBottom');
+            if(pageInfo) pageInfo.innerText = info;
+            if(pageInfoBottom) pageInfoBottom.innerText = info;
+
+            // keep per-page select in sync
+            const perSel = document.getElementById('perPageSelect');
+            if(perSel && String(perSel.value) !== String(per)) perSel.value = String(per);
+
+            pageItems.forEach(u => {
+                let rCls = (u.credits||0)>0?'bg-green-900/20':'';
+                if(u.blocked) rCls='bg-red-900/10';
+                let badge = (u.credits||0)<=0?'<span class="badge-new">CHỜ DUYỆT</span>':'';
+
+                tb.innerHTML += `<tr class="${rCls} border-b border-white/5 ${u.blocked?'opacity-60':''}">
+                    <td class="text-center"><input type="checkbox" class="user-checkbox" value="${u.key}"></td>
+                    <td class="text-white font-bold">
+                        ${u.username || '(no-name)'}
+                        ${u.blocked?'<span class="badge-new" style="background:rgba(239,68,68,.18);color:#fecaca;border:1px solid rgba(239,68,68,.25);">KHOÁ</span>':badge}
+                        <i class="fas fa-copy copy-btn" onclick="copyText('${(u.username||'').replace(/'/g,"\'")}')"></i>
+                    </td>
+                    <td class="text-emerald-300 font-mono">${u.credits||0}</td>
+                    <td class="${(u.profit||0)>0?'text-green-400':'text-red-400'} font-mono text-xs">${toMoney(u.profit||0)}</td>
+                    <td class="space-x-1 whitespace-nowrap">
+                        <button onclick="modCredit('${u.key}',5)"  class="text-emerald-300 border border-emerald-400/40 px-2 rounded-full text-[10px] hover:bg-emerald-500/15">+5</button>
+                        <button onclick="modCredit('${u.key}',10)" class="text-emerald-300 border border-emerald-400/40 px-2 rounded-full text-[10px] hover:bg-emerald-500/15">+10</button>
+                        <button onclick="modCredit('${u.key}',20)" class="text-emerald-300 border border-emerald-400/40 px-2 rounded-full text-[10px] hover:bg-emerald-500/15">+20</button>
+                        <button onclick="modCredit('${u.key}',50)" class="text-emerald-300 border border-emerald-400/40 px-2 rounded-full text-[10px] hover:bg-emerald-500/15">+50</button>
+
+                        <button onclick="setBlocked('${u.key}', ${u.blocked?'false':'true'})"
+                            class="${u.blocked?'text-green-300 border-green-400/40 hover:bg-green-500/15':'text-red-300 border-red-400/40 hover:bg-red-500/15'} border px-2 rounded-full text-[10px]">
+                            ${u.blocked?'MỞ':'KHOÁ'}
+                        </button>
+
+                        <button onclick="delUser('${u.key}')" class="text-red-300 text-[10px] hover:text-red-200">Xóa</button>
+                    </td>
+                </tr>`;
+            });
+
+        }
+
+        function addUser() { const u = document.getElementById('newUsername').value, p = document.getElementById('newPassword').value; if(u && p) dbRef.child('users').push({username: u, password: p, credits: 5, profit: 0, blocked: false, createdAt: Date.now()}); }
+
+        function modCredit(key, val) { dbRef.child('users').child(key).child('credits').transaction(c => (c||0)+val); }
+
+        
+function setBlocked(key, blocked) {
+    dbRef.child('users').child(key).update({ blocked: !!blocked });
+}
+function delUser(key) { if(confirm("Xóa?")) dbRef.child('users').child(key).remove(); }
+
+        function toggleSelectAll() { const m = document.getElementById('selectAll'); document.querySelectorAll('.user-checkbox').forEach(b => b.checked = m.checked); }
+
+        function deleteSelectedUsers() {
+
+            const boxes = document.querySelectorAll('.user-checkbox:checked'); if(boxes.length===0) return alert("Chưa chọn user!");
+
+            if(confirm(`Xóa ${boxes.length} user?`)) { let u={}; boxes.forEach(b=>{u['users/'+b.value]=null;}); dbRef.update(u).then(()=>{ document.getElementById('selectAll').checked=false; }); }
+
+        }
+
+
+
+        // --- GAME LOGIC ---
+
+        let initialCapital=0, currentCapital=0, currentBet=0, nextBet=0, currentHistory=[], lastPrediction=''; 
+
+        let historyLog = []; // Local history for display
+
+
+
+        function initSelects() {
+    const h = document.getElementById('hallSelect');
+    h.innerHTML = '';
+    halls.forEach(x => (h.innerHTML += `<option>${x}</option>`));
+
+    const s = document.getElementById('strategySelect');
+    s.innerHTML = '';
+    patterns.forEach((p, i) => (s.innerHTML += `<option value="${i}">[ ${p.seq} ] ${p.name}</option>`));
+
+    // Build custom hall dropdown (logo + name)
+    initHallDropdown();
+}
+
+function startGame() {
+
+            dbRef.child('users').child(currentUserKey).child('credits').once('value', s => {
+
+                if((s.val()||0)<=0) return alert("Hết lượt! Vui lòng liên hệ Admin.");
+
+                const m = document.getElementById('moneyInput').value; if(!m) return alert("Chưa nhập vốn!");
+
+                initialCapital = parseMoney(m); currentCapital = initialCapital;
+
+                dbRef.child('users').child(currentUserKey).update({profit:0});
+
+                document.getElementById('gameScreenCredits').innerText = s.val();
+
+                nextBet = Math.floor(initialCapital*0.05); if(nextBet===0) nextBet=initialCapital;
+
+                const idx = document.getElementById('strategySelect').value;
+
+                const seq = patterns[idx].seq; currentHistory=[]; for(let c of seq) { if(c==='🔴') currentHistory.push('B'); if(c==='🔵') currentHistory.push('P'); }
+
+                showScreen('game-screen');
+
+                document.getElementById('displayTableName').innerText = document.getElementById('tableName').value || "LEADER";
+
+                document.getElementById('displayHall').innerText = document.getElementById('hallSelect').value.split(" ")[0];
+
+                updateStats(); renderRoadmap('liveRoadmap', currentHistory); runAI();
+
+            });
+
+        }
+
+        function renderRoadmap(id, hist) {
+
+            const c = document.getElementById(id); c.innerHTML=''; 
+
+            hist.forEach(r=>{ const b=document.createElement('div'); b.className=`road-bead ${r==='B'?'bead-b':(r==='P'?'bead-p':'bead-t')}`; b.innerText=r; c.appendChild(b); });
+
+            c.scrollLeft = c.scrollWidth;
+
+        }
+
+        function updateStats() {
+
+            document.getElementById('displayCapital').innerText = toMoney(currentCapital);
+
+            const p = currentCapital - initialCapital;
+
+            dbRef.child('users').child(currentUserKey).update({profit:p});
+
+            const el = document.getElementById('displayProfit');
+
+            el.innerText = (p>0?"+":"") + toMoney(p); el.className = p>0?"text-green-400 font-bold": (p<0?"text-red-400 font-bold":"text-gray-400");
+
+        }
+
+        function runAI() {
+
+            dbRef.child('users').child(currentUserKey).child('credits').transaction(c => { if(c>0) return c-1; return c; }, (err, committed, snap) => {
+
+                if(err) alert("Lỗi mạng!");
+
+                else if(!committed) { alert("HẾT LƯỢT!"); location.reload(); }
+
+                else {
+
+                    document.getElementById('userCredits').innerText = snap.val();
+
+                    document.getElementById('gameScreenCredits').innerText = snap.val();
+
+                    const box = document.getElementById('predictionBox'), txt = document.getElementById('predictionText'), load = document.getElementById('loadingAnim');
+
+                    box.style.borderColor = "rgba(255,255,255,0.05)"; box.style.boxShadow = "none";
+
+                    txt.innerText = "--"; document.getElementById('winRate').style.opacity = 0; document.getElementById('betSuggestion').style.opacity = 0;
+
+                    load.classList.remove('hidden');
+
+                    document.getElementById('lastResultBox').className = "mt-6 w-full status-box status-waiting";
+
+                    document.getElementById('lastResultBox').innerHTML = "ĐANG PHÂN TÍCH...";
+
+                    setTimeout(() => { load.classList.add('hidden'); calculatePrediction(); }, 1200);
+
+                }
+
+            });
+
+        }
+
+        function calculatePrediction() {
+
+            const len = currentHistory.length; let sB=50, sP=50;
+
+            if(len>=2) { const l=currentHistory[len-1], p=currentHistory[len-2]; if(l===p) { if(l==='B') sB+=20; else sP+=20; } else { if(l==='B') sP+=20; else sB+=20; } }
+
+            sB += Math.floor(Math.random()*60)-30;
+
+            lastPrediction = sB > sP ? 'B' : 'P';
+
+            displayResult(lastPrediction);
+
+        }
+
+        function displayResult(res) {
+
+            const txt = document.getElementById('predictionText'), box = document.getElementById('predictionBox');
+
+            if(res === 'B') { txt.innerHTML = '<span class="text-glow-red">BANKER</span>'; box.style.borderColor = "#ef4444"; box.style.boxShadow = "0 0 50px rgba(239, 68, 68, 0.4)"; } 
+
+            else { txt.innerHTML = '<span class="text-glow-blue">PLAYER</span>'; box.style.borderColor = "#3b82f6"; box.style.boxShadow = "0 0 50px rgba(59, 130, 246, 0.4)"; }
+
+            document.getElementById('winRate').style.opacity = 1;
+
+            document.getElementById('winRate').innerHTML = `<span class="text-glow-gold font-bold">${Math.floor(Math.random() * (80 - 51 + 1) + 51)}%</span>`;
+
+            currentBet = nextBet; 
+
+            if(currentBet > currentCapital) currentBet = currentCapital; if(currentBet <= 0 && currentCapital > 0) currentBet = 10000;
+
+            document.getElementById('suggestAmount').innerText = toMoney(currentBet);
+
+            document.getElementById('betSuggestion').style.opacity = 1; document.getElementById('betSuggestion').style.transform = "translateY(0)";
+
+        }
+
+        function inputResult(type) {
+
+            const stat = document.getElementById('lastResultBox');
+
+            if(type==='WIN') {
+
+                currentHistory.push(lastPrediction); currentCapital+=currentBet; nextBet=Math.floor(initialCapital*0.05); if(nextBet>100000) nextBet=Math.floor(nextBet/50000)*50000;
+
+                stat.className="mt-6 w-full status-box status-win animate__animated animate__pulse"; stat.innerHTML=`THẮNG <span class="text-white ml-2">+${toMoney(currentBet)}</span>`;
+
+                addHistory('WIN'); updateStats(); renderRoadmap('liveRoadmap', currentHistory); runAI();
+
+            } else if(type==='TIE') {
+
+                currentHistory.push('T'); stat.className="mt-6 w-full status-box status-tie"; stat.innerHTML="HÒA (HOÀN TIỀN)";
+
+                addHistory('TIE'); renderRoadmap('liveRoadmap', currentHistory); runAI();
+
+            } else if(type==='LOSS') {
+
+                const act = lastPrediction==='B'?'P':'B'; currentHistory.push(act); currentCapital-=currentBet; if(currentCapital<0) currentCapital=0; nextBet=currentBet*2;
+
+                stat.className="mt-6 w-full status-box status-loss animate__animated animate__shakeX"; stat.innerHTML=`THUA <span class="text-white ml-2">-${toMoney(currentBet)}</span>`;
+
+                addHistory('LOSS'); updateStats(); renderRoadmap('liveRoadmap', currentHistory);
+
+                document.getElementById('lossAlert').classList.remove('hidden'); document.getElementById('lossAlert').classList.add('flex');
+
+                renderRoadmap('brokenRoadmap', currentHistory);
+
+            }
+
+        }
+
+        function addHistory(type) {
+
+            const h = document.getElementById('historyList');
+
+            const pill = document.createElement('span'); pill.className=`history-pill ${type==='WIN'?'h-win':(type==='LOSS'?'h-loss':'h-tie')}`; pill.innerText=type[0];
+
+            h.prepend(pill); if(h.children.length>10) h.lastChild.remove();
+
+        }
+
+        function autoContinueAfterLoss() { document.getElementById('lossAlert').classList.add('hidden'); document.getElementById('lossAlert').classList.remove('flex'); runAI(); }
+
+    
+</script>
+
+</body>
+
+</html>
