@@ -1791,6 +1791,7 @@ function deleteSelectedUsers() {
 
 // --- GAME LOGIC ---
 let initialCapital=0, currentCapital=0, currentBet=0, nextBet=0, currentHistory=[], lastPrediction='';
+let selectedPatternIdx=0, winStreak=0, loseStreak=0, lastOutcome='';
 
 // --- QUEUE AI (for LOSS popup) ---
 let __queuedAI = null; // { res:'B'|'P', winRate:number, bet:number }
@@ -1991,6 +1992,8 @@ setBtnLoading('btnStartGame', true, 'ĐANG KÍCH HOẠT...');
     if (nextBet <= 0) nextBet = initialCapital;
 
     const idx = Number(document.getElementById('strategySelect').value) || 0;
+    selectedPatternIdx = idx;
+    winStreak = 0; loseStreak = 0; lastOutcome = 'START';
     const seq = patterns[idx]?.seq || "";
 
     currentHistory = [];
@@ -2129,26 +2132,175 @@ function runAI(opts = {}) {
   });
 }
 
-function calculatePrediction(opts = {}) {
-  const defer = !!opts.defer;
+// --- PATTERN MATCHING (độ khớp cầu -> % tín hiệu) ---
+let __patternsBP = null;
 
-  const len = currentHistory.length;
-  let sB=50, sP=50;
+// convert emoji sequence to ['B','P',...]
+function __seqToBP(seq){
+  const out = [];
+  for(const ch of (seq || "")){
+    if(ch === '🔴') out.push('B');
+    else if(ch === '🔵') out.push('P');
+  }
+  return out;
+}
 
-  if(len>=2) {
-    const l=currentHistory[len-1], p=currentHistory[len-2];
-    if(l===p) {
-      if(l==='B') sB+=20; else sP+=20;
-    } else {
-      if(l==='B') sP+=20; else sB+=20;
+function __ensurePatternsBP(){
+  if(__patternsBP) return;
+  __patternsBP = (patterns || []).map((p, idx)=>({
+    idx,
+    name: p?.name || '',
+    bp: __seqToBP(p?.seq || '')
+  }));
+}
+
+// Find best phase/offset to match a repeating pattern against a history segment
+function __scorePatternSegment(seg, patt){
+  const n = seg.length;
+  const m = patt.length;
+  if(n === 0 || m === 0) return { score: 0, shift: 0, next: 'B', matches: 0 };
+
+  let bestMatches = -1;
+  let bestShift = 0;
+
+  for(let shift=0; shift<m; shift++){
+    let matches = 0;
+    for(let i=0; i<n; i++){
+      if(seg[i] === patt[(shift + i) % m]) matches++;
+    }
+    if(matches > bestMatches){
+      bestMatches = matches;
+      bestShift = shift;
     }
   }
 
-  sB += Math.floor(Math.random()*60)-30;
+  const score = (bestMatches / n) * 100;
+  const next  = patt[(bestShift + n) % m];
+  return { score, shift: bestShift, next, matches: bestMatches };
+}
 
-  lastPrediction = (sB > sP) ? 'B' : 'P';
+// Pick best pattern for a segment (3-6 gần nhất hoặc cửa sổ dài)
+function __pickBestPattern(seg){
+  __ensurePatternsBP();
 
-  const winRateVal = genWinRate();
+  let best = null;
+
+  for(const p of __patternsBP){
+    if(!p.bp || p.bp.length === 0) continue;
+
+    const r = __scorePatternSegment(seg, p.bp);
+
+    // Ưu tiên dạng cầu đã chọn ban đầu
+    let adj = r.score;
+    if(p.idx === selectedPatternIdx) adj += 4;
+
+    // Nếu đang thắng liên tục, tăng nhẹ độ tin cậy khi khớp cao
+    if((winStreak || 0) >= 2 && r.score >= 75) adj += Math.min(6, (winStreak-1) * 1.2);
+
+    // clamp
+    if(adj > 100) adj = 100;
+
+    if(!best || adj > best.adj || (Math.abs(adj - best.adj) < 1e-6 && r.score > best.raw)){
+      best = { idx: p.idx, name: p.name, raw: r.score, adj, shift: r.shift, next: r.next, pattLen: p.bp.length };
+    }
+  }
+
+  return best;
+}
+
+// Map "độ khớp" -> % hiển thị (không phải xác suất thật)
+function __scoreToPercent(scoreAdj, mode, windowLen){
+  const s = Math.max(0, Math.min(100, scoreAdj || 0));
+  let base = 50 + (s - 50) * 0.75;
+
+  // cửa sổ ngắn thì giảm vì ít dữ liệu
+  const n = windowLen || 0;
+  if(n > 0 && n < 6){
+    base -= (6 - n) * 1.2;
+  }
+
+  // sau khi thua: giảm nhẹ vì ưu tiên phản ứng nhanh
+  if(mode === 'RECENT') base -= 1.5;
+
+  // thưởng theo chuỗi thắng (nhẹ)
+  if((winStreak || 0) >= 2){
+    base += Math.min(6, (winStreak-1) * 1.5);
+  }
+
+  // giới hạn
+  base = Math.max(52, Math.min(88, base));
+  return Math.round(base);
+}
+
+// Quyết định dự đoán + % theo độ khớp mẫu cầu
+function __patternBasedDecision(){
+  // bỏ TIE khỏi phân tích
+  const hist = (currentHistory || []).filter(x => x === 'B' || x === 'P');
+  const n = hist.length;
+
+  // fallback
+  if(n === 0){
+    return { res: 'B', winRate: 55, windowUsed: 0, mode: 'FULL' };
+  }
+
+  // FULL: dùng cửa sổ dài hơn (tối đa 20)
+  const fullWindow = hist.slice(-Math.min(20, n));
+
+  // LOSS: ưu tiên 3-4-5-6 gần nhất
+  const mode = (lastOutcome === 'LOSS') ? 'RECENT' : 'FULL';
+
+  let chosen = null;
+  let windowUsed = fullWindow.length;
+
+  if(mode === 'RECENT' && n >= 3){
+    const windows = [3,4,5,6].filter(k => n >= k);
+    for(const k of windows){
+      const seg = hist.slice(-k);
+      const best = __pickBestPattern(seg);
+      if(!best) continue;
+
+      // tie-break: nếu điểm ngang nhau thì ưu tiên cửa sổ nhỏ hơn (phản ứng nhanh hơn)
+      if(!chosen || best.adj > chosen.adj || (Math.abs(best.adj - chosen.adj) < 1e-6 && k < windowUsed)){
+        chosen = best;
+        windowUsed = k;
+      }
+    }
+  }
+
+  // nếu không có (hoặc không đủ dữ liệu), dùng cửa sổ dài
+  if(!chosen){
+    chosen = __pickBestPattern(fullWindow);
+    windowUsed = fullWindow.length;
+  }
+
+  // Nếu vẫn null (hiếm), fallback theo pattern đã chọn ban đầu
+  let res = 'B';
+  let scoreAdj = 55;
+
+  if(chosen){
+    res = chosen.next || 'B';
+    scoreAdj = chosen.adj;
+  } else {
+    __ensurePatternsBP();
+    const pref = __patternsBP?.find(x => x.idx === selectedPatternIdx);
+    if(pref && pref.bp && pref.bp.length){
+      const r = __scorePatternSegment(fullWindow, pref.bp);
+      res = r.next || 'B';
+      scoreAdj = Math.min(100, r.score + 4);
+    }
+  }
+
+  const winRate = __scoreToPercent(scoreAdj, mode, windowUsed);
+  return { res, winRate, windowUsed, mode };
+}
+
+function calculatePrediction(opts = {}) {
+  const defer = !!opts.defer;
+
+  const picked = __patternBasedDecision();
+  lastPrediction = picked.res;
+
+  const winRateVal = picked.winRate;
   const bet = computeBetSuggestion();
 
   if(defer){
@@ -2168,6 +2320,9 @@ function inputResult(type) {
   if (cNow <= 0) { outOfCredits(); return; }
 
   if(type==='WIN') {
+    lastOutcome='WIN';
+    winStreak = (winStreak||0) + 1;
+    loseStreak = 0;
     currentHistory.push(lastPrediction);
     currentCapital += currentBet;
 
@@ -2185,6 +2340,7 @@ function inputResult(type) {
     runAI();
 
   } else if(type==='TIE') {
+    lastOutcome='TIE';
     currentHistory.push('T');
     stat.className="mt-6 w-full status-box status-tie";
     stat.innerHTML="HÒA (HOÀN TIỀN)";
@@ -2196,6 +2352,9 @@ function inputResult(type) {
     runAI({ charge: false });
 
   } else if(type==='LOSS') {
+    lastOutcome='LOSS';
+    loseStreak = (loseStreak||0) + 1;
+    winStreak = 0;
     const act = lastPrediction==='B'?'P':'B';
     currentHistory.push(act);
     currentCapital -= currentBet;
