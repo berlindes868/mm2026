@@ -2,7 +2,7 @@
 <html lang="vi">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
   <meta name="theme-color" content="#10ffb1" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -765,7 +765,81 @@ h1,h2,h3{ letter-spacing: .01em; }
   border-color: rgba(245,158,11,.26);
   background: linear-gradient(90deg, rgba(245,158,11,.10), rgba(0,0,0,.20));
 }
-  </style>
+  
+/* ===== PERF-LITE (AUTO) =====
+   Tắt blur nặng + glow quá mạnh trên máy yếu để giảm giật/lag.
+   Tắt bằng cách mở link có ?perf=full
+*/
+.perf-lite .glass-card,
+.perf-lite .toast,
+.perf-lite #lossAlert{
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+.perf-lite .glass-card::before,
+.perf-lite .glass-card::after{
+  filter: none !important;
+  opacity: .35 !important;
+}
+.perf-lite .animate__animated{
+  animation: none !important;
+}
+
+
+/* --- PERF-LITE EXTRA (mượt hơn cho máy yếu) --- */
+.perf-lite body::before,
+.perf-lite body::after{
+  display:none !important;
+  content:none !important;
+}
+
+.perf-lite *{
+  /* tắt toàn bộ animation/transition để giảm giật */
+  animation: none !important;
+  transition: none !important;
+  box-shadow: none !important;
+  text-shadow: none !important;
+  filter: none !important;
+  -webkit-filter: none !important;
+}
+
+.perf-lite .glass-card,
+.perf-lite .dd-menu,
+.perf-lite .toast,
+.perf-lite #lossAlert{
+  background: rgba(3, 5, 10, .72) !important;
+  border-color: rgba(16,255,177,.14) !important;
+}
+
+
+/* --- LOSS POPUP BUTTON TEXT FIX (small screens) --- */
+.loss-continue-btn{
+  display:flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  text-align:center;
+  gap:10px;
+  isolation:isolate;
+  line-height:1.1;
+  padding: 14px 16px !important; /* stable height across devices */
+  min-height: 52px;
+  font-size: clamp(13px, 3.8vw, 18px) !important;
+}
+.loss-continue-btn::before{ z-index:0; }
+.loss-continue-btn::after{ z-index:1; }
+.loss-continue-btn .btn-label{
+  position:relative;
+  z-index:2;
+  display:block;
+  width:100%;
+  line-height:1.05;
+  white-space:normal;
+}
+@media (max-width: 360px){
+  .loss-continue-btn{ padding: 12px 12px !important; min-height: 48px; }
+  .loss-continue-btn .btn-label{ letter-spacing: .04em; }
+}
+</style>
 </head>
 
 <body class="p-4">
@@ -1072,7 +1146,7 @@ h1,h2,h3{ letter-spacing: .01em; }
           <div id="brokenRoadmap" class="roadmap-container justify-center bg-transparent border-none"></div>
         </div>
 
-        <button onclick="playSound('click'); autoContinueAfterLoss()" class="btn-pro btn-red btn-3d w-full py-4 text-lg">XÁC NHẬN & TIẾP TỤC</button>
+        <button onclick="playSound('click'); autoContinueAfterLoss()" class="btn-pro btn-red btn-3d w-full py-4 text-lg loss-continue-btn"><span class="btn-label">XÁC NHẬN &amp; TIẾP TỤC</span></button>
 </div>
     </div>
 
@@ -1283,13 +1357,14 @@ function lockGameButtons(lock=true, lockContinue=false){
     if(cont){
       if(!cont.dataset.label) cont.dataset.label = cont.innerText;
       if(lock){
+        // HẾT LƯỢT: ẩn nút "XÁC NHẬN & TIẾP TỤC" (tránh hiển thị nút HẾT LƯỢT thừa thãi)
         cont.disabled = true;
         cont.style.pointerEvents = 'none';
-        cont.style.opacity = '0.55';
-        cont.innerText = 'HẾT LƯỢT';
+        cont.style.display = 'none';
       }else{
         cont.disabled = false;
         cont.style.pointerEvents = '';
+        cont.style.display = '';
         cont.style.opacity = '';
         cont.innerText = cont.dataset.label || cont.innerText;
       }
@@ -1401,7 +1476,43 @@ const ADMIN_USER = 'admin'; const ADMIN_PASS = 'admin';
 let currentUser = null; let currentUserKey = null; let realtimeData = {};
 let __creditsRef = null;
 
+// --- PERF TUNING (giảm giật lag trên máy yếu) ---
+const PERF = {
+  MAX_GAME_HISTORY: 120,     // giữ tối đa N kết quả B/P để tính + vẽ
+  MAX_BROKEN_ROADMAP: 60     // popup thua: chỉ render N hạt gần nhất
+};
+function trimGameHistory(){
+  const max = (PERF && PERF.MAX_GAME_HISTORY) ? PERF.MAX_GAME_HISTORY : 120;
+  if(Array.isArray(currentHistory) && currentHistory.length > max){
+    currentHistory = currentHistory.slice(-max);
+  }
+}
+// auto bật "Lite mode" cho máy yếu / mobile (có thể tắt bằng ?perf=full)
+(function(){
+  try{
+    const q = new URLSearchParams(location.search);
+    // ?perf=full để ép chạy full hiệu ứng
+    if(q.get('perf') === 'full') return;
 
+    const ua = navigator.userAgent || '';
+    const isMobile = /Android|iPhone|iPad|iPod/i.test(ua);
+
+    // thiết bị yếu / mạng tiết kiệm dữ liệu
+    const lowMem = (navigator.deviceMemory && navigator.deviceMemory <= 4);
+    const lowCPU = (navigator.hardwareConcurrency && navigator.hardwareConcurrency <= 4);
+
+    const conn = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+    const saveData = !!(conn && conn.saveData);
+    const effType = (conn && conn.effectiveType) ? String(conn.effectiveType) : '';
+    const slowNet = saveData || /2g|slow-2g|3g/i.test(effType);
+
+    const reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    if(isMobile || lowMem || lowCPU || slowNet || reduceMotion){
+      document.documentElement.classList.add('perf-lite');
+    }
+  }catch(_){}
+})();
 function bindUserCreditsLive(){
   if(!currentUserKey) return;
   try{ if(__creditsRef) __creditsRef.off(); }catch(_){ }
@@ -2022,14 +2133,26 @@ setBtnLoading('btnStartGame', true, 'ĐANG KÍCH HOẠT...');
 
 function renderRoadmap(id, hist) {
   const c = document.getElementById(id);
-  c.innerHTML='';
-  const data = (id === 'liveRoadmap' && hist.length > 14) ? hist.slice(-14) : hist;
-  data.forEach(r=>{
-    const b=document.createElement('div');
-    b.className=`road-bead ${r==='B'?'bead-b':(r==='P'?'bead-p':'bead-t')}`;
-    b.innerText=r;
-    c.appendChild(b);
-  });
+  if(!c) return;
+
+  // cap số lượng bead để tránh DOM phình gây lag
+  const max = (id === 'liveRoadmap') ? 14
+            : (id === 'brokenRoadmap') ? ((PERF && PERF.MAX_BROKEN_ROADMAP) || 60)
+            : ((PERF && PERF.MAX_GAME_HISTORY) || 120);
+
+  const arr = Array.isArray(hist) ? hist : [];
+  const data = (arr.length > max) ? arr.slice(-max) : arr;
+
+  // render tối ưu bằng DocumentFragment (giảm reflow)
+  c.textContent = '';
+  const frag = document.createDocumentFragment();
+  for(const r of data){
+    const b = document.createElement('div');
+    b.className = `road-bead ${r==='B'?'bead-b':(r==='P'?'bead-p':'bead-t')}`;
+    b.textContent = r;
+    frag.appendChild(b);
+  }
+  c.appendChild(frag);
   c.scrollLeft = c.scrollWidth;
 }
 
@@ -2043,6 +2166,7 @@ function updateStats() {
 }
 
 function runAI(opts = {}) {
+  trimGameHistory();
   const charge = (opts.charge !== false); // default trừ lượt
   const defer  = !!opts.defer;            // defer = trừ lượt + tính nhưng không chạy UI (dùng cho popup THUA)
 
@@ -2324,6 +2448,7 @@ function inputResult(type) {
     winStreak = (winStreak||0) + 1;
     loseStreak = 0;
     currentHistory.push(lastPrediction);
+    trimGameHistory();
     currentCapital += currentBet;
 
     nextBet = Math.floor(initialCapital*0.05);
@@ -2357,6 +2482,7 @@ function inputResult(type) {
     winStreak = 0;
     const act = lastPrediction==='B'?'P':'B';
     currentHistory.push(act);
+    trimGameHistory();
     currentCapital -= currentBet;
     if(currentCapital<0) currentCapital=0;
     nextBet = currentBet*2;
