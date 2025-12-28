@@ -158,6 +158,17 @@ body::after{
   overflow:hidden;
   border-radius: 999px;
   letter-spacing: .06em;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+  vertical-align:middle;
+  line-height:1.1;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  user-select:none;
+  -webkit-user-select:none;
+  isolation:isolate;
 }
 .btn-pro::after{
   content:"";
@@ -167,6 +178,8 @@ body::after{
   transform: translateX(-80%);
   transition: .55s ease;
   opacity:.85;
+  z-index:1;
+  pointer-events:none;
 }
 .btn-pro:hover::after{ transform: translateX(80%); }
 .btn-pro:active{ transform: scale(.97); filter: brightness(1.05); }
@@ -198,6 +211,27 @@ body::after{
   border: 1px solid rgba(148,163,184,.18);
 }
 
+/* --- BUTTON RESPONSIVE FIX (ALL BUTTONS) --- */
+.btn-pro > *{
+  position:relative;
+  z-index:2;
+}
+.btn-pro.w-full{
+  padding-left: 16px;
+  padding-right: 16px;
+  min-height: 48px;
+}
+.btn-pro i, .btn-pro svg{
+  line-height: 1;
+}
+@media (max-width: 360px){
+  .btn-pro.w-full{
+    flex-wrap: wrap;
+    white-space: normal;
+    line-height: 1.12;
+    letter-spacing: .045em;
+  }
+}
 /* Inputs: capsule */
 .tech-input{
   background: rgba(0,0,0,0.32);
@@ -411,6 +445,7 @@ select.tech-input option{ background:#071017; color:#e5e7eb; padding:8px; }
   background: linear-gradient(180deg, rgba(0,0,0,.10), rgba(0,0,0,.45));
   box-shadow: inset 0 0 0 1px rgba(16,255,177,.22);
   pointer-events:none;
+  z-index:0;
 }
 .btn-3d{
   box-shadow:
@@ -999,13 +1034,10 @@ h1,h2,h3{ letter-spacing: .01em; }
             </div>
             <div class="min-w-0">
               <div class="text-[11px] font-black uppercase tracking-widest text-red-200">HẾT LƯỢT SỬ DỤNG</div>
-              <div class="text-sm text-gray-300 mt-1">Tài khoản của bạn đã hết lượt. Vui lòng liên hệ Admin để được cấp thêm.</div>
-              <div class="text-[11px] text-gray-400 mt-2">Bấm nút bên dưới để sao chép tin nhắn gửi Admin.</div>
+              <div class="text-sm text-gray-300 mt-1">Tài khoản của bạn đã hết lượt. Vui lòng liên hệ hỗ trợ Admin 24/7 để được cấp thêm.</div>
+              <div class="text-[11px] text-gray-400 mt-2">Bấm nút bên dưới để liên hệ hỗ trợ.</div>
             </div>
           </div>
-          <button id="btnContactAdmin" onclick="playSound('click'); contactAdmin()" class="btn-pro btn-red btn-3d w-full py-3 text-sm mt-3 flex items-center justify-center gap-2">
-            <i class="fas fa-headset"></i> LIÊN HỆ ADMIN
-          </button>
           <a id="btnContactSupportAdmin" href="https://t.me/hotrocode8kbet" target="_blank" rel="noopener"
              onclick="playSound('click'); openSupportAdmin(); return false;"
              class="btn-pro btn-green btn-3d w-full py-3 text-sm mt-2 flex items-center justify-center gap-2">
@@ -1151,9 +1183,6 @@ h1,h2,h3{ letter-spacing: .01em; }
     </div>
 
     <div class="p-5 bg-black/30 border-t border-white/5 backdrop-blur-xl">
-            <button id="btnContactAdminGame" onclick="playSound('click'); contactAdmin()" class="hidden btn-pro btn-red btn-3d w-full py-3 text-sm mb-3 flex items-center justify-center gap-2">
-        <i class="fas fa-headset"></i> LIÊN HỆ ADMIN
-      </button>
       <a id="btnContactSupportGame" href="https://t.me/hotrocode8kbet" target="_blank" rel="noopener"
          onclick="playSound('click'); openSupportAdmin(); return false;"
          class="hidden btn-pro btn-green btn-3d w-full py-3 text-sm mb-3 flex items-center justify-center gap-2">
@@ -1230,7 +1259,7 @@ function setStartButtonState(credits){
   if(!btn) return;
   const disable = toInt(credits) <= 0;
   btn.setAttribute('aria-disabled', disable ? 'true' : 'false');
-  btn.title = disable ? 'Hết lượt - liên hệ Admin để cấp thêm.' : '';
+  btn.title = disable ? 'Hết lượt - liên hệ hỗ trợ Admin 24/7 để cấp thêm.' : '';
 }
 
 
@@ -1297,9 +1326,9 @@ function contactAdmin(){
   if(navigator.clipboard && navigator.clipboard.writeText){
     navigator.clipboard.writeText(msg)
       .then(()=> toast('success','Đã sao chép','Đã sao chép tin nhắn. Bạn chỉ cần dán và gửi cho Admin.', 2600))
-      .catch(()=> toast('info','Liên hệ Admin', msg, 4200));
+      .catch(()=> toast('info','Liên hệ hỗ trợ Admin 24/7', msg, 4200));
   }else{
-    toast('info','Liên hệ Admin', msg, 4200);
+    toast('info','Liên hệ hỗ trợ Admin 24/7', msg, 4200);
   }
 }
 
@@ -1396,7 +1425,7 @@ function outOfCredits(opts = {}){
   const stat = document.getElementById('lastResultBox');
   if(stat){
     stat.className = "mt-6 w-full status-box status-loss";
-    stat.innerHTML = "HẾT LƯỢT • Vui lòng liên hệ Admin";
+    stat.innerHTML = "HẾT LƯỢT • Vui lòng liên hệ hỗ trợ Admin 24/7";
   }
 
   // lock WIN/LOSS/TIE + lock "TIẾP TỤC" trong popup THUA
@@ -1406,12 +1435,12 @@ function outOfCredits(opts = {}){
   const la = document.getElementById('lossAlert');
   if(la && !la.classList.contains('hidden')){
     const msg = la.querySelector('p.text-gray-400');
-    if(msg) msg.innerText = "Bạn đã hết lượt. Vui lòng liên hệ Admin để cấp thêm lượt.";
+    if(msg) msg.innerText = "Bạn đã hết lượt. Vui lòng liên hệ hỗ trợ Admin 24/7 để cấp thêm lượt.";
   }
 
   if(!silent && !__outCreditsOnce){
     __outCreditsOnce = true;
-    toast('warn', 'Hết lượt', 'Vui lòng liên hệ Admin để cấp thêm lượt.', 3200);
+    toast('warn', 'Hết lượt', 'Vui lòng liên hệ hỗ trợ Admin 24/7 để cấp thêm lượt.', 3200);
   }
 }
 
@@ -1751,7 +1780,7 @@ function handleLogin() {
         });
 
         if (userFound) {
-          if (userFound.blocked === true) return toast('error','Tài khoản bị khoá','Liên hệ Admin.', 2600);
+          if (userFound.blocked === true) return toast('error','Tài khoản bị khoá','Liên hệ hỗ trợ Admin 24/7.', 2600);
 
           currentUser = userFound;
           showScreen('setup-screen');
@@ -1776,7 +1805,7 @@ function handleRegister() {
   dbRef.child('users').orderByChild('username').equalTo(u).once('value', s => {
     if(s.exists()) toast('error','Tên đã tồn tại','Vui lòng chọn tên khác.', 2600);
     else dbRef.child('users').push({username: u, password: p, credits: 0, profit: 0, blocked: false, createdAt: Date.now()})
-      .then(()=>{ toast('success','Đăng ký thành công','Liên hệ Admin kích hoạt.', 2800); showScreen('login-screen'); });
+      .then(()=>{ toast('success','Đăng ký thành công','Liên hệ hỗ trợ Admin 24/7 kích hoạt.', 2800); showScreen('login-screen'); });
   });
 }
 function logout() { location.reload(); }
@@ -2010,7 +2039,7 @@ function startGame() {
   if(uiCredits <= 0){
     setStartButtonState(0);
     __startingGame = false;
-    setBanner('setupBanner', 'warn', `Bạn đang <b>hết lượt</b>. Vui lòng liên hệ Admin để được cấp thêm.`);
+    setBanner('setupBanner', 'warn', `Bạn đang <b>hết lượt</b>. Vui lòng liên hệ hỗ trợ Admin 24/7 để được cấp thêm.`);
     toast('warn', 'Hết lượt', 'Không thể kích hoạt tool.', 2800);
           setStartButtonState(0);
 return;
@@ -2059,32 +2088,20 @@ setBtnLoading('btnStartGame', true, 'ĐANG KÍCH HOẠT...');
 
   const creditsRef = dbRef.child('users').child(currentUserKey).child('credits');
 
-  // ✅ Trừ 1 lượt khi bấm KÍCH HOẠT TOOL
-  creditsRef.transaction(c => {
-    c = toInt(c);
-    if (c <= 0) return;   // abort
-    return c - 1;
-  }, (err, committed, snap) => {
-    if (err) {
-      console.error(err);
+  // ✅ Không trừ lượt khi bấm KÍCH HOẠT TOOL
+  // Lượt chỉ bị trừ khi bạn bấm THẮNG / THUA (mỗi ván 1 lượt). HÒA không trừ.
+  creditsRef.once('value').then((snap) => {
+    // Nếu watchdog đã kết thúc trước đó thì bỏ qua
+    if(!__startingGame) return;
+
+    const creditsNow = toInt(snap.val());
+    if (creditsNow <= 0) {
       finish();
-      toast('error', 'Lỗi mạng', 'Vui lòng thử lại.');
-      return;
-    }
-    if (!committed) {
-      finish();
-      setBanner('setupBanner', 'warn', `Bạn đang <b>hết lượt</b>. Vui lòng liên hệ Admin để được cấp thêm.`);
+      setBanner('setupBanner', 'warn', `Bạn đang <b>hết lượt</b>. Vui lòng liên hệ hỗ trợ Admin 24/7 để được cấp thêm.`);
       toast('warn', 'Hết lượt', 'Không thể kích hoạt tool.', 2800);
-      // Đồng bộ lại lượt từ server để tránh hiển thị sai
-      creditsRef.once('value').then(ss => {
-        const cNow = toInt(ss.val());
-        const uc = document.getElementById('userCredits');
-        if (uc) uc.innerText = cNow;
-      }).catch(()=>{});
       return;
     }
 
-    const creditsNow = toInt(snap.val());
 
     // Khởi tạo vốn
     initialCapital = money;
@@ -2124,11 +2141,16 @@ setBtnLoading('btnStartGame', true, 'ĐANG KÍCH HOẠT...');
 
     toast('success', 'Kích hoạt thành công', 'Đang phân tích cầu...', 1600);
 
-    // ✅ Lần phân tích đầu: KHÔNG trừ lượt nữa (đã trừ lúc kích hoạt)
+    // ✅ Lần phân tích đầu: KHÔNG trừ lượt (lượt sẽ trừ khi bấm THẮNG/THUA)
     runAI({ charge: false });
 
     finish();
+  }).catch((err) => {
+    console.error(err);
+    finish();
+    toast('error', 'Lỗi mạng', 'Vui lòng thử lại.');
   });
+
 }
 
 function renderRoadmap(id, hist) {
