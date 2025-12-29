@@ -936,7 +936,7 @@ h1,h2,h3{ letter-spacing: .01em; }
       <button onclick="playSound('click'); handleLogin()" class="btn-pro btn-gold btn-3d w-full py-4 text-xl mt-4 login-btn-fix">ĐĂNG NHẬP</button>
 
       <div class="text-center mt-4">
-        <button onclick="playSound('click'); showScreen('register-screen')" class="text-xs text-gray-400 hover:text-emerald-300 underline uppercase tracking-widest transition">
+        <button onclick="playSound('click'); navToScreen('register-screen','push')" class="text-xs text-gray-400 hover:text-emerald-300 underline uppercase tracking-widest transition">
           <span class="register-blink">Chưa có tài khoản? Đăng ký ngay</span>
         </button>
       </div>
@@ -977,7 +977,7 @@ h1,h2,h3{ letter-spacing: .01em; }
       </div>
 
       <button onclick="playSound('click'); handleRegister()" class="btn-pro btn-green btn-3d w-full py-3 text-lg mt-2">ĐĂNG KÝ NGAY</button>
-      <button onclick="playSound('click'); showScreen('login-screen')" class="w-full py-2 text-xs text-gray-500 hover:text-white uppercase font-bold mt-2">QUAY LẠI</button>
+      <button onclick="playSound('click'); navToScreen('login-screen','replace')" class="w-full py-2 text-xs text-gray-500 hover:text-white uppercase font-bold mt-2">QUAY LẠI</button>
     </div>
   </div>
 
@@ -1063,7 +1063,7 @@ h1,h2,h3{ letter-spacing: .01em; }
           <a id="btnContactSupportAdmin" href="https://t.me/hotrocode8kbet" target="_blank" rel="noopener"
              onclick="playSound('click'); openSupportAdmin(); return false;"
              class="btn-pro btn-green btn-3d w-full py-3 text-sm mt-2 flex items-center justify-center gap-2">
-            <i class="fas fa-headset"></i> LIÊN HỆ HỖ TRỢ ADMIN 24/7
+            <i class="fas fa-headset"></i> LIÊN HỆ ADMIN 24/7
           </a>
 
         </div>
@@ -1165,7 +1165,7 @@ h1,h2,h3{ letter-spacing: .01em; }
         <p class="text-[9px] text-gray-400 font-bold">VỐN</p>
         <p id="displayCapital" class="text-sm font-mono text-white font-bold">0</p>
         <div class="mt-1"><p id="displayProfit" class="font-mono text-xs font-bold text-gray-400">0</p></div>
-      </div>
+</div>
     </div>
 
     <div class="flex-1 flex flex-col items-center justify-center relative p-4">
@@ -1210,7 +1210,7 @@ h1,h2,h3{ letter-spacing: .01em; }
       <a id="btnContactSupportGame" href="https://t.me/hotrocode8kbet" target="_blank" rel="noopener"
          onclick="playSound('click'); openSupportAdmin(); return false;"
          class="hidden btn-pro btn-green btn-3d w-full py-3 text-sm mb-3 flex items-center justify-center gap-2">
-        <i class="fas fa-headset"></i> LIÊN HỆ HỖ TRỢ ADMIN 24/7
+        <i class="fas fa-headset"></i> LIÊN HỆ ADMIN 24/7
       </a>
 
 <div class="grid grid-cols-3 gap-3 mb-3">
@@ -1757,6 +1757,124 @@ function showScreen(id) {
   });
 }
 
+// --- HISTORY NAV (Android Back / iPhone Swipe Back) ---
+// Mục tiêu: Khi đang ở màn phân tích (game-screen), bấm nút Back hoặc vuốt từ trái sang phải (iOS) sẽ quay về màn trước (setup-screen)
+// mà không bị tải lại trang.
+function __screenHash(id){
+  if(id==='game-screen') return '#game';
+  if(id==='setup-screen') return '#setup';
+  if(id==='register-screen') return '#register';
+  if(id==='admin-screen') return '#admin';
+  return '#login';
+}
+function __screenFromHash(){
+  const h = (location.hash || '').replace('#','').toLowerCase();
+  if(h==='game') return 'game-screen';
+  if(h==='setup') return 'setup-screen';
+  if(h==='register') return 'register-screen';
+  if(h==='admin') return 'admin-screen';
+  return 'login-screen';
+}
+function setHistoryScreen(id, mode='replace'){
+  try{
+    const url = location.pathname + location.search + __screenHash(id);
+    const st  = { screen: id };
+    if(mode==='push') history.pushState(st, '', url);
+    else history.replaceState(st, '', url);
+  }catch(_){}
+}
+// Gọi khi điều hướng giữa các màn chính (để Back/Swipe hoạt động đúng)
+function navToScreen(id, mode='push'){
+  showScreen(id);
+  setHistoryScreen(id, mode);
+}
+// Khi user bấm Back / vuốt Back trên iPhone
+window.addEventListener('popstate', (e)=>{
+  const id = (e && e.state && e.state.screen) ? e.state.screen : __screenFromHash();
+  showScreen(id);
+});
+
+// Khởi tạo state ban đầu theo màn đang hiển thị
+document.addEventListener('DOMContentLoaded', ()=>{
+  try{
+    // Nếu chưa có history state, set theo màn đang visible hoặc theo hash
+    const visible = document.querySelector('.glass-card:not(.hidden)')?.id;
+    const id = visible || __screenFromHash();
+    setHistoryScreen(id, 'replace');
+  }catch(_){}
+});
+
+
+
+// --- NAV: Quay lại màn cài đặt từ màn phân tích ---
+function syncHallDropdownUI(){
+  const select = document.getElementById('hallSelect');
+  const label  = document.getElementById('hallDdText');
+  const logo   = document.getElementById('hallDdLogo');
+  const menu   = document.getElementById('hallDdMenu');
+  if(!select || !label || !logo) return;
+
+  const current = select.options[select.selectedIndex];
+  const full = (current && (current.value || current.textContent)) || 'Chọn sảnh...';
+  const code = (full.split(' ')[0] || '').trim();
+
+  label.textContent = full;
+  try{
+    logo.src = (HALL_LOGOS && HALL_LOGOS[code]) ? HALL_LOGOS[code] : svgLogo(code || '?');
+  }catch(_){
+    // ignore
+  }
+
+  if(menu){
+    [...menu.children].forEach((item,i)=>{
+      item.classList.toggle('active', i === select.selectedIndex);
+    });
+  }
+}
+
+function backToSetup(){
+  // Nếu đang hiện popup thua thì ẩn đi (tránh đè UI khi quay lại)
+  const loss = document.getElementById('lossAlert');
+  if(loss && !loss.classList.contains('hidden')) loss.classList.add('hidden');
+
+  // Đổ lại thông tin phiên hiện tại vào form để sửa nhanh
+  const tableInput = document.getElementById('tableName');
+  const moneyInput = document.getElementById('moneyInput');
+  const stratSel   = document.getElementById('strategySelect');
+  const hallSel    = document.getElementById('hallSelect');
+
+  const table = (document.getElementById('displayTableName')?.innerText || '').trim();
+  if(tableInput) tableInput.value = table;
+
+  if(moneyInput){
+    const cap = Number(initialCapital || 0);
+    moneyInput.value = cap ? new Intl.NumberFormat('vi-VN').format(cap) : (moneyInput.value || '');
+  }
+
+  if(stratSel){
+    stratSel.value = String(Number(selectedPatternIdx || 0));
+  }
+
+  if(hallSel){
+    const code = (document.getElementById('displayHall')?.innerText || '').trim();
+    if(code){
+      const opts = [...hallSel.options];
+      const idx = opts.findIndex(o => String((o.value || o.textContent) || '').trim().startsWith(code));
+      if(idx >= 0) hallSel.selectedIndex = idx;
+    }
+  }
+
+  // Sync dropdown UI
+  syncHallDropdownUI();
+
+  // Hiện màn setup
+  navToScreen('setup-screen','replace');
+  try{ setStartButtonState(toInt(document.getElementById('userCredits')?.innerText || '0')); }catch(_){}
+
+  // Hint nhỏ
+  toast('info','Chỉnh sửa nhanh','Bạn có thể đổi sảnh / leader / vốn / dạng cầu rồi bấm KÍCH HOẠT TOOL lại.', 2200);
+}
+
 function copyText(text) {
   navigator.clipboard.writeText(text).then(() => { toast('success','Đã sao chép', text, 1500); });
 }
@@ -1769,7 +1887,7 @@ function handleLogin() {
 
   // fallback admin hardcode
   if (u === "berlindes868" && p === "berlindes868") {
-    showScreen('admin-screen');
+    navToScreen('admin-screen','push');
     initAdminListener();
     return;
   }
@@ -1786,7 +1904,7 @@ function handleLogin() {
     }
 
     if (isAdmin) {
-      showScreen('admin-screen');
+      navToScreen('admin-screen','push');
       initAdminListener();
       return;
     }
@@ -1807,7 +1925,7 @@ function handleLogin() {
           if (userFound.blocked === true) return toast('error','Tài khoản bị khoá','Liên hệ hỗ trợ Admin 24/7.', 2600);
 
           currentUser = userFound;
-          showScreen('setup-screen');
+          navToScreen('setup-screen','replace');
           document.getElementById('welcomeUser').innerText = userFound.username;
           document.getElementById('userCredits').innerText = toInt(userFound.credits);
           setStartButtonState(toInt(userFound.credits));
@@ -1829,7 +1947,7 @@ function handleRegister() {
   dbRef.child('users').orderByChild('username').equalTo(u).once('value', s => {
     if(s.exists()) toast('error','Tên đã tồn tại','Vui lòng chọn tên khác.', 2600);
     else dbRef.child('users').push({username: u, password: p, credits: 0, profit: 0, blocked: false, createdAt: Date.now()})
-      .then(()=>{ toast('success','Đăng ký thành công','Liên hệ hỗ trợ Admin 24/7 kích hoạt.', 2800); showScreen('login-screen'); });
+      .then(()=>{ toast('success','Đăng ký thành công','Liên hệ hỗ trợ Admin 24/7 kích hoạt.', 2800); navToScreen('login-screen','replace'); });
   });
 }
 function logout() { location.reload(); }
@@ -2092,7 +2210,7 @@ setBtnLoading('btnStartGame', true, 'ĐANG KÍCH HOẠT...');
   if (!currentUserKey) {
     finish();
     toast('error', 'Lỗi phiên', 'Vui lòng đăng nhập lại.');
-    showScreen('login-screen');
+    navToScreen('login-screen','replace');
     return;
   }
 
@@ -2154,7 +2272,7 @@ setBtnLoading('btnStartGame', true, 'ĐANG KÍCH HOẠT...');
       if (ch === '🔵') currentHistory.push('P');
     }
 
-    showScreen('game-screen');
+    navToScreen('game-screen','push');
 
     document.getElementById('displayTableName').innerText = table;
     document.getElementById('displayHall').innerText =
@@ -2219,7 +2337,7 @@ function runAI(opts = {}) {
   if (!currentUserKey) {
     toast('error', 'Lỗi phiên', 'Vui lòng đăng nhập lại.');
     // Không reload để tránh văng về đăng nhập đột ngột
-    showScreen('login-screen');
+    navToScreen('login-screen','replace');
     return;
   }
 
