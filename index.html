@@ -811,6 +811,28 @@ h1,h2,h3{ letter-spacing: .01em; }
   backdrop-filter: none !important;
   -webkit-backdrop-filter: none !important;
 }
+/* Loss popup: compact layout (mượt + không chiếm quá nhiều diện tích) */
+#lossAlert .loss-card{
+  width: min(440px, 100%);
+  border-radius: 24px;
+  padding: 18px 18px 16px;
+  background: rgba(6, 18, 22, .86);
+  border: 1px solid rgba(255,255,255,.10);
+  box-shadow: 0 26px 70px rgba(0,0,0,.55);
+}
+#lossAlert .loss-icon{ font-size: 48px; margin-bottom: 10px; }
+#lossAlert .loss-title{ font-size: 26px; margin: 0 0 6px; }
+#lossAlert .loss-desc{ font-size: 12px; margin: 0 0 14px; }
+#lossAlert .loss-box{ padding: 12px; margin: 0 0 14px; border-radius: 18px; }
+#lossAlert .loss-box-title{ margin-bottom: 8px; }
+#lossAlert .roadmap-compact{ padding: 10px; gap: 6px; }
+#lossAlert .roadmap-compact .road-bead{ width: 26px; height: 26px; font-size: 11px; }
+
+@media (max-width: 360px){
+  #lossAlert .loss-card{ padding: 16px 14px 14px; border-radius: 22px; }
+  #lossAlert .loss-icon{ font-size: 42px; }
+  #lossAlert .loss-title{ font-size: 22px; }
+}
 .perf-lite .glass-card::before,
 .perf-lite .glass-card::after{
   filter: none !important;
@@ -1168,17 +1190,19 @@ h1,h2,h3{ letter-spacing: .01em; }
         <div id="historyList"></div>
       </div>
 
-      <div id="lossAlert" class="hidden absolute inset-0 z-50 bg-black/95 flex flex-col items-center justify-center p-6 text-center backdrop-blur-xl">
-        <i class="fas fa-exclamation-triangle text-6xl text-red-500 mb-6 animate-pulse"></i>
-        <h3 class="text-3xl font-tech font-bold text-white mb-2 text-glow-red">CẢNH BÁO GÃY!</h3>
-        <p class="text-gray-400 text-sm mb-8">AI phát hiện cầu biến động mạnh. Đã tự động ngắt để bảo toàn vốn.</p>
+      <div id="lossAlert" class="hidden absolute inset-0 z-50 items-center justify-center bg-black/70 p-4 text-center">
+        <div class="loss-card">
+          <i class="fas fa-exclamation-triangle loss-icon text-red-500 animate-pulse"></i>
+          <h3 class="loss-title font-tech font-bold text-white text-glow-red">CẢNH BÁO GÃY!</h3>
+          <p class="loss-desc text-gray-300">AI phát hiện cầu biến động mạnh. Đã tự động ngắt để bảo toàn vốn.</p>
 
-        <div class="w-full mb-6 p-4 bg-[#0f172a] rounded-xl border border-red-500/30">
-          <p class="text-[10px] text-gray-500 uppercase text-left mb-2">CẬP NHẬT CÔNG THỨC MỚI:</p>
-          <div id="brokenRoadmap" class="roadmap-container justify-center bg-transparent border-none"></div>
+          <div class="loss-box w-full bg-[#0f172a] border border-red-500/30">
+            <p class="loss-box-title text-[10px] text-gray-500 uppercase text-left">CẬP NHẬT CÔNG THỨC MỚI:</p>
+            <div id="brokenRoadmap" class="roadmap-container roadmap-compact justify-center bg-transparent border-none"></div>
+          </div>
+
+          <button onclick="playSound('click'); autoContinueAfterLoss()" class="btn-pro btn-red btn-3d w-full py-3 text-base loss-continue-btn"><span class="btn-label">XÁC NHẬN &amp; TIẾP TỤC</span></button>
         </div>
-
-        <button onclick="playSound('click'); autoContinueAfterLoss()" class="btn-pro btn-red btn-3d w-full py-4 text-lg loss-continue-btn"><span class="btn-label">XÁC NHẬN &amp; TIẾP TỤC</span></button>
 </div>
     </div>
 
@@ -1434,7 +1458,7 @@ function outOfCredits(opts = {}){
   // nếu popup THUA đang mở -> hiện thêm nội dung rõ ràng
   const la = document.getElementById('lossAlert');
   if(la && !la.classList.contains('hidden')){
-    const msg = la.querySelector('p.text-gray-400');
+    const msg = la.querySelector('.loss-desc') || la.querySelector('p.text-gray-400');
     if(msg) msg.innerText = "Bạn đã hết lượt. Vui lòng liên hệ hỗ trợ Admin 24/7 để cấp thêm lượt.";
   }
 
@@ -2465,6 +2489,13 @@ function inputResult(type) {
   const cNow = toInt(_cEl ? _cEl.innerText : '0');
   if (cNow <= 0) { outOfCredits(); return; }
 
+  // ✅ Khi popup THUA đang mở và vẫn còn lượt: bắt buộc bấm "XÁC NHẬN & TIẾP TỤC" trước
+  const _la = document.getElementById('lossAlert');
+  if(_la && !_la.classList.contains('hidden')){
+    showToast('Vui lòng bấm "XÁC NHẬN & TIẾP TỤC" để tiếp tục.', 'warn');
+    return;
+  }
+
   if(type==='WIN') {
     lastOutcome='WIN';
     winStreak = (winStreak||0) + 1;
@@ -2518,6 +2549,8 @@ function inputResult(type) {
 
     document.getElementById('lossAlert').classList.remove('hidden');
     document.getElementById('lossAlert').classList.add('flex');
+    // Khoá nút THẮNG/THUA/HÒA khi popup THUA đang mở
+    lockGameButtons(true, false);
     renderRoadmap('brokenRoadmap', currentHistory);
 
     // ✅ THUA: trừ lượt ngay, nhưng không chạy UI phía sau popup
@@ -2554,6 +2587,9 @@ function autoContinueAfterLoss() {
     la.classList.add('hidden');
     la.classList.remove('flex');
   }
+
+  // Mở lại nút THẮNG/THUA/HÒA sau khi đã xác nhận
+  lockGameButtons(false, false);
 
   // ✅ chỉ show kết quả đã queue (không trừ lượt lần 2)
   revealQueuedAI();
