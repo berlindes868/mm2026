@@ -1076,6 +1076,7 @@ h1,h2,h3{ letter-spacing: .01em; }
     <div class="flex justify-between items-center mb-4 border-b border-white/10 pb-2">
       <h2 class="text-xl font-tech font-bold text-glow-gold">QUẢN TRỊ VIÊN</h2>
       <div class="flex gap-2">
+        <button id="btnTopupZeroToTen" onclick="topupZeroUsersToTen()" class="btn-pro btn-green btn-3d px-3 py-1 text-[10px] leading-tight whitespace-normal max-w-[320px]" title="Thêm lượt cho tất cả user đang 0 lượt thành 10 lượt">Thêm lượt cho tất cả user đang 0 lượt thành 10 lượt</button>
         <button onclick="deleteSelectedUsers()" class="btn-pro btn-red btn-3d px-3 py-1 text-xs">XÓA MỤC CHỌN</button>
         <button onclick="logout()" class="btn-pro btn-red btn-3d px-3 py-1 text-xs">THOÁT</button>
       </div>
@@ -1136,7 +1137,7 @@ h1,h2,h3{ letter-spacing: .01em; }
         <thead>
           <tr>
             <th class="w-8 text-center"><input type="checkbox" id="selectAll" onclick="toggleSelectAll()" class="user-checkbox"></th>
-            <th>TÀI KHOẢN</th><th>LƯỢT</th><th>LÃI/LỖ</th><th>THAO TÁC</th>
+            <th class="w-10 text-center">STT</th><th>TÀI KHOẢN</th><th>LƯỢT</th><th>LÃI/LỖ</th><th>THAO TÁC</th>
           </tr>
         </thead>
         <tbody id="userListBody"></tbody>
@@ -2020,13 +2021,15 @@ function renderAdminDirect() {
   const perSel = document.getElementById('perPageSelect');
   if(perSel && String(perSel.value) !== String(per)) perSel.value = String(per);
 
-  pageItems.forEach(u => {
+  pageItems.forEach((u, idx) => {
+    const stt = filtered.length - (start + idx);
     let rCls = toInt(u.credits)>0?'bg-green-900/20':'';
     if(u.blocked) rCls='bg-red-900/10';
     let badge = toInt(u.credits)<=0?'<span class="badge-new">CHỜ DUYỆT</span>':'';
 
     tb.innerHTML += `<tr class="${rCls} border-b border-white/5 ${u.blocked?'opacity-60':''}">
       <td class="text-center"><input type="checkbox" class="user-checkbox" value="${u.key}"></td>
+      <td class="text-center text-gray-300 font-mono text-xs">${stt}</td>
       <td class="text-white font-bold">
         ${u.username || '(no-name)'}
         ${u.blocked?'<span class="badge-new" style="background:rgba(239,68,68,.18);color:#fecaca;border:1px solid rgba(239,68,68,.25);">KHOÁ</span>':badge}
@@ -2070,6 +2073,43 @@ function deleteSelectedUsers() {
     dbRef.update(u).then(()=>{ document.getElementById('selectAll').checked=false; });
   }
 }
+
+
+async function topupZeroUsersToTen(){
+  try{
+    const arr = Object.keys(realtimeData || {}).map(k => ({ key: k, ...(realtimeData[k] || {}) }));
+    const targets = arr.filter(u => toInt(u.credits) <= 0);
+    if(targets.length === 0){
+      return toast('info','Không có','Không có user nào đang 0 lượt.', 2200);
+    }
+    if(!confirm(`Thêm lượt cho ${targets.length} user đang 0 lượt thành 10 lượt?`)) return;
+
+    const btn = document.getElementById('btnTopupZeroToTen');
+    const oldText = btn ? btn.innerText : '';
+    if(btn){
+      btn.disabled = true;
+      btn.classList.add('opacity-60');
+      btn.innerText = 'ĐANG XỬ LÝ...';
+    }
+
+    const updates = {};
+    targets.forEach(u => { updates[`users/${u.key}/credits`] = 10; });
+
+    await dbRef.update(updates);
+    toast('success','Thành công',`Đã cập nhật ${targets.length} user lên 10 lượt.`, 2400);
+  }catch(err){
+    console.error(err);
+    toast('error','Lỗi','Không thể cập nhật lượt. Vui lòng thử lại.', 2400);
+  }finally{
+    const btn = document.getElementById('btnTopupZeroToTen');
+    if(btn){
+      btn.disabled = false;
+      btn.classList.remove('opacity-60');
+      btn.innerText = 'Thêm lượt cho tất cả user đang 0 lượt thành 10 lượt';
+    }
+  }
+}
+
 
 // --- GAME LOGIC ---
 let initialCapital=0, currentCapital=0, currentBet=0, nextBet=0, currentHistory=[], lastPrediction='';
