@@ -697,12 +697,19 @@ h1,h2,h3{ letter-spacing: .01em; }
   left: 12px;
   right: 12px;
   bottom: 18px;
-  z-index: 9999;
+  z-index: 999999;
   display:flex;
   flex-direction:column;
   gap:10px;
   pointer-events:none;
 }
+@media (max-width: 520px){
+  .toast-wrap{
+    top: calc(12px + env(safe-area-inset-top));
+    bottom: auto;
+  }
+}
+
 .toast{
   pointer-events:auto;
   display:flex;
@@ -1884,6 +1891,9 @@ function copyText(text) {
 function handleLogin() {
   const u = document.getElementById('loginUser').value.trim();
   const p = document.getElementById('loginPass').value;
+  // Đảm bảo thông báo hiển thị trên mobile (đóng bàn phím)
+  try{ document.activeElement && document.activeElement.blur && document.activeElement.blur(); }catch(_){ }
+
   if (!u || !p) return toast('warn','Thiếu thông tin','Vui lòng nhập tài khoản và mật khẩu!', 2200);
 
   // fallback admin hardcode
@@ -1942,6 +1952,9 @@ function handleRegister() {
   const u = document.getElementById('regUser').value.trim();
   const p = document.getElementById('regPass').value;
   const pc = document.getElementById('regPassConfirm').value;
+  // Đảm bảo thông báo hiển thị trên mobile (đóng bàn phím)
+  try{ document.activeElement && document.activeElement.blur && document.activeElement.blur(); }catch(_){ }
+
   if(!u || !p) return toast('warn','Thiếu thông tin','Vui lòng điền đủ thông tin!', 2400);
   if(p!==pc) return toast('error','Không khớp','Mật khẩu xác nhận không khớp!', 2600);
 
@@ -1982,14 +1995,33 @@ function renderAdminDirect() {
   const keywordEl = document.getElementById('searchUser');
   const keyword = (keywordEl ? keywordEl.value : '').toLowerCase();
 
-  let arr = Object.keys(realtimeData || {}).map(k => ({ key: k, ...(realtimeData[k] || {}) }));
-  arr.sort((a,b) => {
-    if((a.credits||0)>0 && (b.credits||0)<=0) return -1;
-    if((a.credits||0)<=0 && (b.credits||0)>0) return 1;
-    return (a.username||'').localeCompare(b.username||'');
-  });
+  // ----- SẮP XẾP & STT THEO THỜI ĐIỂM ĐĂNG KÝ -----
+// Quy ước: tài khoản đăng ký đầu tiên = STT 1 (cũ nhất), tài khoản mới nhất = STT lớn nhất.
+// Danh sách hiển thị: ưu tiên user mới đăng ký gần nhất ở trên (createdAt desc).
+const allUsers = Object.keys(realtimeData || {}).map(k => ({ key: k, ...(realtimeData[k] || {}) }));
+const toNum = v => (typeof v === 'number' ? v : parseInt(v,10)) || 0;
 
-  const filtered = arr.filter(u => (u.username||'').toLowerCase().includes(keyword));
+// Tạo STT theo thứ tự đăng ký (cũ -> mới)
+const regAsc = [...allUsers].sort((a,b) => {
+  const ca = toNum(a.createdAt), cb = toNum(b.createdAt);
+  if(ca && cb) return ca - cb;
+  if(ca && !cb) return 1;      // thiếu createdAt coi như cũ hơn
+  if(!ca && cb) return -1;
+  // fallback: push-key Firebase (lexicographic ~ theo thời gian)
+  return String(a.key).localeCompare(String(b.key));
+});
+const sttMap = new Map();
+regAsc.forEach((u,i) => sttMap.set(u.key, i + 1));
+
+// Danh sách hiển thị (mới -> cũ)
+let arr = [...allUsers].sort((a,b) => {
+  const ca = toNum(a.createdAt), cb = toNum(b.createdAt);
+  if(ca && cb) return cb - ca;
+  if(ca && !cb) return -1;
+  if(!ca && cb) return 1;
+  return String(b.key).localeCompare(String(a.key));
+});
+const filtered = arr.filter(u => (u.username||'').toLowerCase().includes(keyword));
 
   const total = arr.length;
   const blocked = arr.filter(u => u.blocked === true).length;
@@ -2022,7 +2054,7 @@ function renderAdminDirect() {
   if(perSel && String(perSel.value) !== String(per)) perSel.value = String(per);
 
   pageItems.forEach((u, idx) => {
-    const stt = filtered.length - (start + idx);
+    const stt = sttMap.get(u.key) || 0;
     let rCls = toInt(u.credits)>0?'bg-green-900/20':'';
     if(u.blocked) rCls='bg-red-900/10';
     let badge = toInt(u.credits)<=0?'<span class="badge-new">CHỜ DUYỆT</span>':'';
