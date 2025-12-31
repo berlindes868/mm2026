@@ -1537,6 +1537,192 @@ const ADMIN_USER = 'admin'; const ADMIN_PASS = 'admin';
 let currentUser = null; let currentUserKey = null; let realtimeData = {};
 let __creditsRef = null;
 
+// --- SESSION + STATE (GIỮ TRANG KHI F5/RELOAD) ---
+const __SESSION_KEY = 'mm2026_session_v1';
+const __STATE_KEY   = 'mm2026_state_v1';
+
+function __readJSON(key){
+  try{ return JSON.parse(sessionStorage.getItem(key) || 'null'); }catch(_){ return null; }
+}
+function __writeJSON(key, obj){
+  try{ sessionStorage.setItem(key, JSON.stringify(obj)); }catch(_){}
+}
+function __clearSession(){
+  try{ sessionStorage.removeItem(__SESSION_KEY); }catch(_){}
+}
+function __clearState(){
+  try{ sessionStorage.removeItem(__STATE_KEY); }catch(_){}
+}
+function __saveSession(payload){
+  const sess = Object.assign({ ts: Date.now() }, payload || {});
+  __writeJSON(__SESSION_KEY, sess);
+  return sess;
+}
+function __getSession(){
+  return __readJSON(__SESSION_KEY);
+}
+
+function __getVisibleScreen(){
+  return document.querySelector('.glass-card.is-active:not(.hidden)')?.id
+      || document.querySelector('.glass-card:not(.hidden)')?.id
+      || 'login-screen';
+}
+
+function __safeGetValue(id){
+  const el = document.getElementById(id);
+  return el ? (el.value ?? '') : '';
+}
+function __safeSetValue(id, val){
+  const el = document.getElementById(id);
+  if(!el) return;
+  el.value = (val ?? '');
+}
+
+function __saveAppState(extra){
+  const prev = __readJSON(__STATE_KEY) || {};
+  const state = Object.assign({}, prev, extra || {});
+  // snapshot setup
+  state.screen = state.screen || __getVisibleScreen();
+  state.setup = Object.assign({}, state.setup || {}, {
+    hall: (document.getElementById('hallSelect')?.value || ''),
+    strategy: (document.getElementById('strategySelect')?.value || ''),
+    tableName: __safeGetValue('tableName'),
+    moneyInput: __safeGetValue('moneyInput')
+  });
+
+  // snapshot game (nếu đang chơi)
+  try{
+    if(typeof initialCapital !== 'undefined'){
+      state.game = Object.assign({}, state.game || {}, {
+        initialCapital, currentCapital, currentBet, nextBet,
+        currentHistory: Array.isArray(currentHistory) ? currentHistory.slice(0) : [],
+        lastPrediction: (typeof lastPrediction !== 'undefined' ? lastPrediction : ''),
+        selectedPatternIdx: (typeof selectedPatternIdx !== 'undefined' ? selectedPatternIdx : 0),
+        winStreak: (typeof winStreak !== 'undefined' ? winStreak : 0),
+        loseStreak: (typeof loseStreak !== 'undefined' ? loseStreak : 0),
+        lastOutcome: (typeof lastOutcome !== 'undefined' ? lastOutcome : '')
+      });
+    }
+  }catch(_){}
+
+  state.ts = Date.now();
+  __writeJSON(__STATE_KEY, state);
+  return state;
+}
+function __getAppState(){
+  return __readJSON(__STATE_KEY);
+}
+
+// Khôi phục phiên + màn hiện tại sau khi reload (F5)
+function __restoreAfterReload(){
+  const sess = __getSession();
+  const st   = __getAppState();
+  const hashTarget = (typeof __screenFromHash === 'function') ? __screenFromHash() : 'login-screen';
+  let target = (hashTarget && hashTarget !== 'login-screen') ? hashTarget : (st?.screen || hashTarget || 'login-screen');
+
+  // Nếu target là màn cần đăng nhập nhưng chưa có session -> về login
+  const needsAuth = (target === 'setup-screen' || target === 'game-screen' || target === 'admin-screen');
+  if(!sess && needsAuth){
+    showScreen('login-screen');
+    try{ setHistoryScreen('login-screen','replace'); }catch(_){}
+    return;
+  }
+
+  // Admin session
+  if(sess && sess.isAdmin){
+    showScreen('admin-screen');
+    try{ setHistoryScreen('admin-screen','replace'); }catch(_){}
+    try{ initAdminListener(); }catch(_){}
+    __saveAppState({ screen:'admin-screen' });
+    return;
+  }
+
+  // User session: nạp lại user từ DB
+  if(sess && sess.userKey){
+    currentUserKey = sess.userKey;
+
+    // restore setup fields sớm để UI đúng
+    if(st?.setup){
+      if(st.setup.hall) try{ document.getElementById('hallSelect').value = st.setup.hall; }catch(_){}
+      if(st.setup.strategy) try{ document.getElementById('strategySelect').value = st.setup.strategy; }catch(_){}
+      __safeSetValue('tableName', st.setup.tableName || '');
+      __safeSetValue('moneyInput', st.setup.moneyInput || '');
+      try{ if(typeof syncHallDropdownUI==='function') syncHallDropdownUI(); }catch(_){}
+    }
+
+    dbRef.child('users').child(currentUserKey).once('value').then(s=>{
+      const u = s.val();
+      if(!u || (sess.username && u.username !== sess.username)){
+        __clearSession(); __clearState();
+        showScreen('login-screen');
+        try{ setHistoryScreen('login-screen','replace'); }catch(_){}
+        return;
+      }
+
+      currentUser = u;
+
+      // Update UI header
+      const wu = document.getElementById('welcomeUser');
+      if(wu) wu.innerText = u.username || '';
+      const uc = document.getElementById('userCredits');
+      if(uc) uc.innerText = toInt(u.credits);
+      setStartButtonState(toInt(u.credits));
+
+      try{ bindUserCreditsLive(); }catch(_){}
+      try{ initSelects(); }catch(_){}
+
+      // Nếu hash target là game-screen nhưng chưa có state game thì về setup-screen
+      if(target === 'game-screen' && !(st && st.game && Array.isArray(st.game.currentHistory))){
+        target = 'setup-screen';
+      }
+
+      showScreen(target);
+      try{ setHistoryScreen(target,'replace'); }catch(_){}
+
+      // restore game snapshot nếu có
+      if(target === 'game-screen' && st?.game){
+        try{
+          initialCapital = st.game.initialCapital || 0;
+          currentCapital = st.game.currentCapital || 0;
+          currentBet = st.game.currentBet || 0;
+          nextBet = st.game.nextBet || 0;
+          currentHistory = Array.isArray(st.game.currentHistory) ? st.game.currentHistory.slice(0) : [];
+          lastPrediction = st.game.lastPrediction || '';
+          selectedPatternIdx = st.game.selectedPatternIdx || 0;
+          winStreak = st.game.winStreak || 0;
+          loseStreak = st.game.loseStreak || 0;
+          lastOutcome = st.game.lastOutcome || '';
+
+          // render lại màn game
+          const table = (st.setup?.tableName || document.getElementById('tableName')?.value || '').trim();
+          const hall  = (document.getElementById('hallSelect')?.value || 'SE').split(' ')[0];
+          const dtn = document.getElementById('displayTableName'); if(dtn) dtn.innerText = table || (u.username||'');
+          const dh  = document.getElementById('displayHall'); if(dh) dh.innerText = hall;
+
+          try{ updateStats(); }catch(_){}
+          try{ renderRoadmap('liveRoadmap', currentHistory); }catch(_){}
+          // phân tích lại nhưng KHÔNG trừ lượt
+          try{ runAI({ charge:false }); }catch(_){}
+        }catch(_){}
+      }
+
+      __saveAppState({ screen: target });
+    }).catch(()=>{
+      __clearSession(); __clearState();
+      showScreen('login-screen');
+      try{ setHistoryScreen('login-screen','replace'); }catch(_){}
+    });
+
+    return;
+  }
+
+  // Không cần auth: login/register vẫn giữ nếu reload
+  showScreen(target || 'login-screen');
+  try{ setHistoryScreen(target || 'login-screen','replace'); }catch(_){}
+  __saveAppState({ screen: target || 'login-screen' });
+}
+
+
 // --- PERF TUNING (giảm giật lag trên máy yếu) ---
 const PERF = {
   MAX_GAME_HISTORY: 120,     // giữ tối đa N kết quả B/P để tính + vẽ
@@ -1763,6 +1949,7 @@ function showScreen(id) {
     target.classList.add('is-active');
     if (typeof attachRipples === 'function') attachRipples();
   });
+  try{ __saveAppState({ screen: id }); }catch(_){ }
 }
 
 // --- HISTORY NAV (Android Back / iPhone Swipe Back) ---
@@ -1802,14 +1989,9 @@ window.addEventListener('popstate', (e)=>{
   showScreen(id);
 });
 
-// Khởi tạo state ban đầu theo màn đang hiển thị
+// Khởi tạo state ban đầu + khôi phục phiên khi F5/Reload
 document.addEventListener('DOMContentLoaded', ()=>{
-  try{
-    // Nếu chưa có history state, set theo màn đang visible hoặc theo hash
-    const visible = document.querySelector('.glass-card:not(.hidden)')?.id;
-    const id = visible || __screenFromHash();
-    setHistoryScreen(id, 'replace');
-  }catch(_){}
+  try{ __restoreAfterReload(); }catch(e){ console.error(e); }
 });
 
 
@@ -1898,6 +2080,8 @@ function handleLogin() {
 
   // fallback admin hardcode
   if (u === "berlindes868" && p === "berlindes868") {
+    __saveSession({ isAdmin:true, username:u });
+    __saveAppState({ screen:'admin-screen' });
     navToScreen('admin-screen','push');
     initAdminListener();
     return;
@@ -1936,6 +2120,8 @@ function handleLogin() {
           if (userFound.blocked === true) return toast('error','Tài khoản bị khoá','Liên hệ hỗ trợ Admin 24/7.', 2600);
 
           currentUser = userFound;
+          __saveSession({ isAdmin:false, userKey: currentUserKey, username: userFound.username });
+          __saveAppState({ screen:'setup-screen' });
           navToScreen('setup-screen','replace');
           document.getElementById('welcomeUser').innerText = userFound.username;
           document.getElementById('userCredits').innerText = toInt(userFound.credits);
@@ -1964,7 +2150,10 @@ function handleRegister() {
       .then(()=>{ toast('success','Đăng ký thành công','Liên hệ hỗ trợ Admin 24/7 kích hoạt.', 2800); navToScreen('login-screen','replace'); });
   });
 }
-function logout() { location.reload(); }
+function logout() {
+  __clearSession(); __clearState();
+  location.reload();
+}
 
 // --- ADMIN UI STATE ---
 let adminPage = 1;
@@ -2357,6 +2546,7 @@ setBtnLoading('btnStartGame', true, 'ĐANG KÍCH HOẠT...');
 
     // ✅ Lần phân tích đầu: KHÔNG trừ lượt (lượt sẽ trừ khi bấm THẮNG/THUA)
     runAI({ charge: false });
+    try{ __saveAppState({ screen:'game-screen' }); }catch(_){ }
 
     finish();
   }).catch((err) => {
@@ -2783,6 +2973,7 @@ function autoContinueAfterLoss() {
 
   // ✅ chỉ show kết quả đã queue (không trừ lượt lần 2)
   revealQueuedAI();
+  try{ __saveAppState(); }catch(_){ }
 }
 
   </script>
